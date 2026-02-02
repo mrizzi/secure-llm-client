@@ -3,7 +3,7 @@ use std::path::Path;
 use std::process::Command;
 use tokio::task;
 
-const DOCLING_PATH: &str = "/Users/mrizzi/Library/Python/3.14/bin/docling";
+const DOCLING_COMMAND: &str = "docling";
 
 /// Output format for extracted content
 #[derive(Debug, Clone, PartialEq)]
@@ -39,7 +39,7 @@ pub struct PdfContent {
 
 /// Check if Docling CLI is available
 pub fn is_docling_available() -> bool {
-    Command::new(DOCLING_PATH)
+    Command::new(DOCLING_COMMAND)
         .arg("--version")
         .output()
         .map(|output| output.status.success())
@@ -69,7 +69,7 @@ async fn extract_with_docling(path: &Path) -> Result<PdfContent, CliError> {
         // Pipeline can be configured via DOCLING_PIPELINE env var (standard, vlm, legacy, asr)
         let pipeline = std::env::var("DOCLING_PIPELINE").unwrap_or_else(|_| "standard".to_string());
 
-        let mut cmd = Command::new(DOCLING_PATH);
+        let mut cmd = Command::new(DOCLING_COMMAND);
         cmd.arg(&path_buf)
             .arg("--to")
             .arg("md")
@@ -145,8 +145,11 @@ pub async fn extract_text_from_pdf(path: &Path) -> Result<PdfContent, CliError> 
     if !is_docling_available() {
         return Err(CliError::PdfProcessingFailed(format!(
             "PDF processing requires Docling CLI.\n\n\
-                 Docling is not installed or not found at: {DOCLING_PATH}\n\n\
+                 Docling command '{DOCLING_COMMAND}' is not available in PATH.\n\n\
                  Install with:\n  pip install docling\n\n\
+                 After installation, ensure the docling binary is in your PATH:\n  \
+                 export PATH=\"$HOME/.local/bin:$PATH\"  # Linux/macOS\n  \
+                 export PATH=\"$HOME/Library/Python/3.x/bin:$PATH\"  # macOS with user install\n\n\
                  Why required? Docling provides AI-powered PDF→Markdown conversion with:\n\
                  • Structure preservation (headings, tables, lists, code blocks)\n\
                  • Markdown format (crucial for LLM evaluation quality)\n\
