@@ -2,6 +2,14 @@
 
 A Rust library and CLI tool for secure interaction with Large Language Model (LLM) providers, featuring built-in security guardrails, PDF extraction, and multi-provider support.
 
+> [!WARNING]
+> **Active Development**: This project is currently under active development.  
+> While we strive for stability, please note:
+> - The library API may change between versions
+> - Issues and bugs are expected - please report them!
+> - Contributions and feedback are welcome and appreciated
+> - Not recommended for production use without thorough testing
+
 ## Features
 
 **Multi-Provider Support**
