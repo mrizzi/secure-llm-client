@@ -117,7 +117,12 @@ jobs:
       - name: Install Docling
         run: |
           pip install docling
-          docling --version || echo "Docling installed successfully"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Verify Docling Installation
+        run: |
+          which docling || echo "Docling not in PATH yet (will be available in next step)"
+          docling --version
 
       - name: Cache cargo registry
         uses: actions/cache@v4

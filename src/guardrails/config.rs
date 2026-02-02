@@ -50,37 +50,27 @@ fn resolve_api_key(
 }
 
 /// Execution mode for composite guardrails
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecutionMode {
     /// Run providers one at a time (can short-circuit)
     Sequential,
 
     /// Run all providers simultaneously
-    Parallel,
-}
-
-impl Default for ExecutionMode {
-    fn default() -> Self {
-        Self::Parallel // Faster, maximizes throughput
-    }
+    #[default]
+    Parallel, // Faster, maximizes throughput
 }
 
 /// Aggregation mode for composite guardrails
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AggregationMode {
     /// All providers must say "safe" for overall "safe" (conservative)
-    AllMustPass,
+    #[default]
+    AllMustPass, // Conservative, safer for guardrails
 
     /// Any provider can say "safe" for overall "safe" (permissive)
     AnyCanPass,
-}
-
-impl Default for AggregationMode {
-    fn default() -> Self {
-        Self::AllMustPass // Conservative, safer for guardrails
-    }
 }
 
 /// Top-level guardrail configuration
