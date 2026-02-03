@@ -1,4 +1,4 @@
-use secure_llm_client::{ConfigFileRequest, GuardrailProviderConfig};
+use fortified_llm_client::{ConfigFileRequest, GuardrailProviderConfig};
 
 /// Configure input guardrails from CLI args or config file
 ///
@@ -26,9 +26,9 @@ pub fn configure_guardrails(
         log::debug!("Input validation enabled via CLI (using default regex patterns)");
         Some(GuardrailProviderConfig::Regex {
             max_length_bytes: max_input_length
-                .unwrap_or(secure_llm_client::constants::input_limits::MAX_INPUT_BYTES),
+                .unwrap_or(fortified_llm_client::constants::input_limits::MAX_INPUT_BYTES),
             max_tokens_estimated: max_input_tokens
-                .unwrap_or(secure_llm_client::constants::input_limits::MAX_TOKENS_ESTIMATED),
+                .unwrap_or(fortified_llm_client::constants::input_limits::MAX_TOKENS_ESTIMATED),
             check_pii: true,
             check_content_filters: true,
         })

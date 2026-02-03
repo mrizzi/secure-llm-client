@@ -1,4 +1,4 @@
-use secure_llm_client::constants::llm_defaults;
+use fortified_llm_client::constants::llm_defaults;
 use std::path::PathBuf;
 
 // Validation constants

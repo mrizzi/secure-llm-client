@@ -6,7 +6,7 @@
 // IMPORTANT: When adding new fields to ConfigFileRequest, you MUST update this test!
 // This test should include EVERY field defined in ConfigFileRequest struct.
 
-use secure_llm_client::{config_builder::ConfigBuilder, load_config_file};
+use fortified_llm_client::{config_builder::ConfigBuilder, load_config_file};
 use std::fs;
 use tempfile::NamedTempFile;
 
@@ -94,7 +94,7 @@ fn test_all_config_file_parameters_are_used() {
         "response_format not applied from config file"
     );
     match config.response_format {
-        Some(secure_llm_client::ResponseFormat::JsonObject) => {} // Expected
+        Some(fortified_llm_client::ResponseFormat::JsonObject) => {} // Expected
         _ => panic!(
             "Expected JsonObject response format, got {:?}",
             config.response_format
@@ -104,7 +104,7 @@ fn test_all_config_file_parameters_are_used() {
     // Verify provider is applied from config file
     assert_eq!(
         config.provider,
-        Some(secure_llm_client::Provider::OpenAI),
+        Some(fortified_llm_client::Provider::OpenAI),
         "provider not applied from config file"
     );
 
@@ -240,7 +240,7 @@ fn test_all_config_file_parameters_with_json_schema() {
     // Verify response_format is json-schema variant
     assert!(config.response_format.is_some());
     match &config.response_format {
-        Some(secure_llm_client::ResponseFormat::JsonSchema { json_schema }) => {
+        Some(fortified_llm_client::ResponseFormat::JsonSchema { json_schema }) => {
             assert_eq!(json_schema.name, "test_schema");
             assert_eq!(json_schema.strict, Some(true));
         }
@@ -296,7 +296,7 @@ fn test_toml_config_all_parameters() {
     // Verify response_format is Text variant
     assert!(config.response_format.is_some());
     match config.response_format {
-        Some(secure_llm_client::ResponseFormat::Text) => {} // Expected
+        Some(fortified_llm_client::ResponseFormat::Text) => {} // Expected
         _ => panic!(
             "Expected Text response format, got {:?}",
             config.response_format

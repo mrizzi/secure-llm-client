@@ -4,7 +4,7 @@
 //! loaded and executed during evaluation. This prevents regressions where
 //! config parsing succeeds but guardrails are silently ignored.
 
-use secure_llm_client::{load_config_file, ConfigFileRequest, GuardrailProviderConfig};
+use fortified_llm_client::{load_config_file, ConfigFileRequest, GuardrailProviderConfig};
 use std::io::Write;
 
 /// Test that LlamaGuard input guardrails can be loaded from config file
@@ -194,10 +194,10 @@ timeout_secs = 60
             aggregation,
         } => {
             assert_eq!(providers.len(), 2);
-            assert_eq!(*execution, secure_llm_client::ExecutionMode::Parallel);
+            assert_eq!(*execution, fortified_llm_client::ExecutionMode::Parallel);
             assert_eq!(
                 *aggregation,
-                secure_llm_client::AggregationMode::AllMustPass
+                fortified_llm_client::AggregationMode::AllMustPass
             );
 
             // Verify first provider is Regex
@@ -288,15 +288,15 @@ enabled_categories = ["S1", "S7", "S10"]
             assert_eq!(enabled_categories.len(), 3);
             assert_eq!(
                 enabled_categories[0],
-                secure_llm_client::LlamaGuardCategory::S1
+                fortified_llm_client::LlamaGuardCategory::S1
             );
             assert_eq!(
                 enabled_categories[1],
-                secure_llm_client::LlamaGuardCategory::S7
+                fortified_llm_client::LlamaGuardCategory::S7
             );
             assert_eq!(
                 enabled_categories[2],
-                secure_llm_client::LlamaGuardCategory::S10
+                fortified_llm_client::LlamaGuardCategory::S10
             );
         }
         _ => panic!("Expected LlamaGuard variant"),

@@ -1,6 +1,6 @@
-# secure-llm-client
+# fortified-llm-client
 
-A Rust library and CLI tool for secure interaction with Large Language Model (LLM) providers, featuring built-in security guardrails, PDF extraction, and multi-provider support.
+A Rust library and CLI tool for interacting with Large Language Model (LLM) providers, fortified by multi-layered security guardrails (pattern-matching + LLM-based validation), PDF extraction, and multi-provider support.
 
 > [!WARNING]
 > **Active Development**: This project is currently under active development.  
@@ -66,13 +66,13 @@ A Rust library and CLI tool for secure interaction with Large Language Model (LL
 
 ```bash
 # Clone the repository
-git clone https://github.com/mrizzi/secure-llm-client
-cd secure-llm-client
+git clone https://github.com/mrizzi/fortified-llm-client
+cd fortified-llm-client
 
 # Build the CLI and library
 cargo build --release
 
-# Binary will be at target/release/secure-llm-client
+# Binary will be at target/release/fortified-llm-client
 ```
 
 ## Usage
@@ -81,28 +81,28 @@ cargo build --release
 
 ```bash
 # Basic usage
-secure-llm-client --api-url http://localhost:11434/v1/chat/completions \
+fortified-llm-client --api-url http://localhost:11434/v1/chat/completions \
   --model llama3 \
   --user-text "Explain Rust ownership"
 
 # With guardrails config file
-secure-llm-client --config config.toml --user-text "Your prompt here"
+fortified-llm-client --config config.toml --user-text "Your prompt here"
 
 # PDF extraction with LLM analysis
-secure-llm-client --api-url https://api.openai.com/v1/chat/completions \
+fortified-llm-client --api-url https://api.openai.com/v1/chat/completions \
   --model gpt-4 \
   --pdf-input document.pdf \
   --system-text "Summarize the key points from this document"
 
 # JSON Schema validation
-secure-llm-client --api-url https://api.openai.com/v1/chat/completions \
+fortified-llm-client --api-url https://api.openai.com/v1/chat/completions \
   --model gpt-4 \
   --user-text "Generate a product catalog" \
   --response-format json-schema \
   --response-format-schema-strict schema.json
 
 # Output to file
-secure-llm-client --api-url http://localhost:11434/v1/chat/completions \
+fortified-llm-client --api-url http://localhost:11434/v1/chat/completions \
   --model llama3 \
   --user-text "Hello" \
   --output response.json
@@ -111,7 +111,7 @@ secure-llm-client --api-url http://localhost:11434/v1/chat/completions \
 ### Library API
 
 ```rust
-use secure_llm_client::{evaluate, EvaluationConfig};
+use fortified_llm_client::{evaluate, EvaluationConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

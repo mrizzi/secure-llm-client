@@ -30,7 +30,7 @@ impl LlmClient {
     /// # Example
     ///
     /// ```no_run
-    /// # use secure_llm_client::{LlmClient, InvokeParams};
+    /// # use fortified_llm_client::{LlmClient, InvokeParams};
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = LlmClient::new("http://localhost:11434/v1/chat/completions".to_string(), None);
     ///

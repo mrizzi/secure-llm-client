@@ -4,7 +4,7 @@
 //! Verifies that output guardrails can use different providers (Regex, LlamaGuard,
 //! GptOssSafeguard, Composite).
 
-use secure_llm_client::{
+use fortified_llm_client::{
     create_output_guardrail_provider, AggregationMode, ExecutionMode, LlamaGuardCategory,
     OutputGuardrailProviderConfig,
 };

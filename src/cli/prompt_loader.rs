@@ -1,4 +1,4 @@
-use secure_llm_client::CliError;
+use fortified_llm_client::CliError;
 use std::path::PathBuf;
 
 /// Load prompt from file or text string

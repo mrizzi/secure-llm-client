@@ -3,7 +3,7 @@
 // These tests verify that CLI arguments correctly override config file values
 // Priority: CLI arg > config file > hardcoded default
 
-use secure_llm_client::load_config_file;
+use fortified_llm_client::load_config_file;
 use tempfile::NamedTempFile;
 
 #[test]

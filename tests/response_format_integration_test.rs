@@ -3,10 +3,10 @@
 // Tests that the response field is correctly parsed as native JSON for json-object/json-schema
 // formats and wrapped as string for text format.
 
-use mockito::Server;
-use secure_llm_client::{
+use fortified_llm_client::{
     evaluate, EvaluationConfig, JsonSchemaDefinition, Provider, ResponseFormat,
 };
+use mockito::Server;
 use serde_json::json;
 
 async fn create_test_config(api_url: String) -> EvaluationConfig {

@@ -15,7 +15,7 @@ fn run_cli_with_config(config_content: &str, extension: &str, extra_args: &[&str
     let path = file.path().with_extension(extension);
     fs::write(&path, config_content).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo::cargo_bin!("secure-llm-client"));
+    let mut cmd = Command::new(assert_cmd::cargo::cargo_bin!("fortified-llm-client"));
     cmd.arg("--config-file").arg(&path);
 
     for arg in extra_args {
@@ -140,7 +140,7 @@ fn test_json_config_format_supported() {
     let path = file.path().with_extension("json");
     fs::write(&path, config_json).unwrap();
 
-    let output = Command::new(assert_cmd::cargo::cargo_bin!("secure-llm-client"))
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("fortified-llm-client"))
         .arg("--config-file")
         .arg(&path)
         .arg("--verbose")
@@ -171,7 +171,7 @@ user_prompt = "Test"
     let path = file.path().with_extension("toml");
     fs::write(&path, config_toml).unwrap();
 
-    let output = Command::new(assert_cmd::cargo::cargo_bin!("secure-llm-client"))
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("fortified-llm-client"))
         .arg("--config-file")
         .arg(&path)
         .arg("--verbose")
@@ -201,7 +201,7 @@ fn test_invalid_extension_rejected() {
     // Write content and ensure file exists
     fs::write(&txt_path, config_content).unwrap();
 
-    let output = Command::new(assert_cmd::cargo::cargo_bin!("secure-llm-client"))
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("fortified-llm-client"))
         .arg("--config-file")
         .arg(&txt_path)
         .output()
@@ -378,7 +378,7 @@ fn test_config_file_path_preserved_after_merge() {
     let path = file.path().with_extension("json");
     fs::write(&path, config_json).unwrap();
 
-    let output = Command::new(assert_cmd::cargo::cargo_bin!("secure-llm-client"))
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("fortified-llm-client"))
         .arg("--config-file")
         .arg(&path)
         .arg("--verbose")
@@ -398,7 +398,7 @@ fn test_config_file_path_preserved_after_merge() {
 #[test]
 fn test_no_config_file_early_return() {
     // If no config file, should return args.clone() without merging
-    let output = Command::new(assert_cmd::cargo::cargo_bin!("secure-llm-client"))
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("fortified-llm-client"))
         .arg("--api-url")
         .arg("http://localhost:11434/v1/chat/completions")
         .arg("--model")

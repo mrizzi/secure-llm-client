@@ -6,7 +6,7 @@
 // REGRESSION: This bug existed where "system_prompt = 'path/to/file.md'" in config
 // would send the literal string "path/to/file.md" to the API instead of file content
 
-use secure_llm_client::config::load_config_file;
+use fortified_llm_client::config::load_config_file;
 use std::fs;
 use tempfile::NamedTempFile;
 

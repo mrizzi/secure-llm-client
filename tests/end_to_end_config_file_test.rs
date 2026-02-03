@@ -7,8 +7,8 @@
 //
 // REGRESSION: This would have caught the bug where file paths were sent to API
 
+use fortified_llm_client::{config::load_config_file, evaluate, EvaluationConfig};
 use mockito::Server;
-use secure_llm_client::{config::load_config_file, evaluate, EvaluationConfig};
 use std::fs;
 use tempfile::NamedTempFile;
 

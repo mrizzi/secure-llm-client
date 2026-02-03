@@ -10,7 +10,7 @@ use figment::{
     providers::{Format, Json, Serialized, Toml},
     Figment,
 };
-use secure_llm_client::{
+use fortified_llm_client::{
     config_builder::{self, ConfigBuilder},
     evaluate, CliError, CliOutput, Metadata, Provider,
 };
@@ -18,8 +18,8 @@ use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, process};
 
 #[derive(Parser, Debug, Clone, Serialize, Deserialize)]
-#[command(name = "secure-llm-client")]
-#[command(about = "Secure LLM client with guardrails and multi-provider support", long_about = None)]
+#[command(name = "fortified-llm-client")]
+#[command(about = "LLM client fortified by multi-layered security guardrails and multi-provider support", long_about = None)]
 #[command(version = env!("CARGO_PKG_VERSION"))]
 #[serde(default)]
 struct Args {
@@ -382,7 +382,7 @@ async fn run(args: Args) -> Result<CliOutput, CliError> {
     // FUTURE: Could unify by adding guardrails field to Args, but would require
     // making GuardrailConfig implement clap::Args (significant refactor).
     let file_config = if let Some(config_path) = &merged_args.config_file {
-        Some(secure_llm_client::load_config_file(config_path)?)
+        Some(fortified_llm_client::load_config_file(config_path)?)
     } else {
         None
     };
@@ -533,10 +533,10 @@ async fn run(args: Args) -> Result<CliOutput, CliError> {
 
     match merged_args.response_format {
         Some(ResponseFormatArg::Text) => {
-            builder = builder.response_format(secure_llm_client::ResponseFormat::text());
+            builder = builder.response_format(fortified_llm_client::ResponseFormat::text());
         }
         Some(ResponseFormatArg::JsonObject) => {
-            builder = builder.response_format(secure_llm_client::ResponseFormat::json());
+            builder = builder.response_format(fortified_llm_client::ResponseFormat::json());
         }
         Some(ResponseFormatArg::JsonSchema) => {
             let schema_path = merged_args.response_format_schema.as_ref().ok_or_else(|| {
