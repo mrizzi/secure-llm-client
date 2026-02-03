@@ -9,16 +9,16 @@ use tempfile::NamedTempFile;
 
 #[test]
 fn test_cli_no_args_shows_help() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .assert()
         .success()
         .stdout(predicate::str::contains("Usage:"))
-        .stdout(predicate::str::contains("secure-llm-client"));
+        .stdout(predicate::str::contains("fortified-llm-client"));
 }
 
 #[test]
 fn test_cli_help_flag() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--help")
         .assert()
         .success()
@@ -28,7 +28,7 @@ fn test_cli_help_flag() {
 
 #[test]
 fn test_cli_version_flag() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--version")
         .assert()
         .success()
@@ -37,7 +37,7 @@ fn test_cli_version_flag() {
 
 #[test]
 fn test_cli_short_version_flag() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("-V")
         .assert()
         .success()
@@ -47,7 +47,7 @@ fn test_cli_short_version_flag() {
 #[test]
 fn test_cli_missing_required_config() {
     // No config file and no CLI args = should fail
-    let output = assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    let output = assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--model")
         .arg("test")
         .output()
@@ -74,7 +74,7 @@ fn test_cli_missing_required_config() {
 
 #[test]
 fn test_cli_invalid_temperature() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--temperature")
         .arg("5.0") // Out of range (0.0-2.0)
         .assert()
@@ -84,7 +84,7 @@ fn test_cli_invalid_temperature() {
 
 #[test]
 fn test_cli_invalid_max_tokens() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--max-tokens")
         .arg("0") // Must be >= 1
         .assert()
@@ -94,7 +94,7 @@ fn test_cli_invalid_max_tokens() {
 
 #[test]
 fn test_cli_invalid_timeout() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--timeout")
         .arg("0") // Must be >= 1
         .assert()
@@ -104,7 +104,7 @@ fn test_cli_invalid_timeout() {
 
 #[test]
 fn test_cli_invalid_byte_size() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--max-input-length")
         .arg("invalid") // Not a valid size
         .assert()
@@ -113,7 +113,7 @@ fn test_cli_invalid_byte_size() {
 
 #[test]
 fn test_cli_nonexistent_config_file() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--config-file")
         .arg("/nonexistent/path/config.json")
         .assert()
@@ -123,7 +123,7 @@ fn test_cli_nonexistent_config_file() {
 
 #[test]
 fn test_cli_nonexistent_system_file() {
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--system-file")
         .arg("/nonexistent/prompt.txt")
         .assert()
@@ -149,7 +149,7 @@ fn test_cli_config_file_loads_all_params() {
     fs::write(&path, config).unwrap();
 
     // Should fail on API connection, but that means config was loaded successfully
-    let output = assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    let output = assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--config-file")
         .arg(path.to_str().unwrap())
         .output()
@@ -189,7 +189,7 @@ fn test_cli_args_override_config_file() {
     fs::write(&path, config).unwrap();
 
     // Override model with CLI arg
-    let output = assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    let output = assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--config-file")
         .arg(path.to_str().unwrap())
         .arg("--model")
@@ -223,7 +223,7 @@ fn test_cli_response_format_json_object() {
     let path = file.path().with_extension("json");
     fs::write(&path, config).unwrap();
 
-    let output = assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    let output = assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--config-file")
         .arg(path.to_str().unwrap())
         .arg("--verbose")
@@ -248,7 +248,7 @@ fn test_cli_response_format_schema_without_format_flag() {
     let schema_file = NamedTempFile::new().unwrap();
     fs::write(&schema_file, r#"{"type": "object"}"#).unwrap();
 
-    let output = assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    let output = assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--response-format-schema")
         .arg(schema_file.path())
         .output()
@@ -278,7 +278,7 @@ fn test_cli_system_file_and_system_text_conflict() {
     let file = NamedTempFile::new().unwrap();
     fs::write(&file, "test").unwrap();
 
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--system-file")
         .arg(file.path())
         .arg("--system-text")
@@ -293,7 +293,7 @@ fn test_cli_user_file_and_user_text_conflict() {
     let file = NamedTempFile::new().unwrap();
     fs::write(&file, "test").unwrap();
 
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--user-file")
         .arg(file.path())
         .arg("--user-text")
@@ -320,7 +320,7 @@ fn test_cli_output_file_creation() {
     let output_path = output_file.path().with_extension("json");
 
     // Should fail on API but create output file
-    assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--config-file")
         .arg(config_path.to_str().unwrap())
         .arg("--output")
@@ -351,7 +351,7 @@ fn test_cli_verbose_flag_enables_debug_logging() {
     let path = file.path().with_extension("json");
     fs::write(&path, config).unwrap();
 
-    let output = assert_cmd::cargo::cargo_bin_cmd!("secure-llm-client")
+    let output = assert_cmd::cargo::cargo_bin_cmd!("fortified-llm-client")
         .arg("--config-file")
         .arg(path.to_str().unwrap())
         .arg("--verbose")

@@ -69,8 +69,8 @@ pub struct InvokeParams<'a> {
 /// # Example
 ///
 /// ```ignore
-/// use secure_llm_client::provider::{InvokeParams, LlmProvider};
-/// use secure_llm_client::providers::OpenAIProvider;
+/// use fortified_llm_client::provider::{InvokeParams, LlmProvider};
+/// use fortified_llm_client::providers::OpenAIProvider;
 ///
 /// let provider = OpenAIProvider::new("https://api.openai.com/v1/chat/completions".to_string());
 ///

@@ -1,4 +1,6 @@
-use secure_llm_client::{detect_provider_type, CliError, InvokeParams, LlmProvider, ProviderType};
+use fortified_llm_client::{
+    detect_provider_type, CliError, InvokeParams, LlmProvider, ProviderType,
+};
 
 // Mock provider for testing
 struct MockProvider {

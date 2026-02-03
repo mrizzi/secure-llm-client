@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-`secure-llm-client` is a Rust library and CLI tool for interacting with LLM providers (OpenAI, Ollama) with built-in security guardrails, PDF extraction, and multi-provider support. It provides both a library API (`secure_llm_client`) and a CLI binary (`secure-llm-client`).
+`fortified-llm-client` is a Rust library and CLI tool for interacting with LLM providers (OpenAI, Ollama), fortified by multi-layered security guardrails (pattern-matching + LLM-based validation), PDF extraction, and multi-provider support. It provides both a library API (`fortified_llm_client`) and a CLI binary (`fortified-llm-client`).
 
 ## Common Commands
 

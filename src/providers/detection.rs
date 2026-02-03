@@ -18,7 +18,7 @@ use super::{ollama::OllamaProvider, openai::OpenAIProvider};
 /// # Examples
 ///
 /// ```
-/// use secure_llm_client::{detect_provider_type, ProviderType};
+/// use fortified_llm_client::{detect_provider_type, ProviderType};
 ///
 /// // Path-based detection
 /// assert!(matches!(
@@ -71,8 +71,8 @@ pub fn detect_provider_type(url: &str) -> ProviderType {
 /// # Examples
 ///
 /// ```ignore
-/// use secure_llm_client::providers::detection::create_provider;
-/// use secure_llm_client::provider::ProviderType;
+/// use fortified_llm_client::providers::detection::create_provider;
+/// use fortified_llm_client::provider::ProviderType;
 ///
 /// // Auto-detection
 /// let provider = create_provider("http://localhost:11434/api/generate".to_string(), None);

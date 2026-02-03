@@ -1,4 +1,4 @@
-use secure_llm_client::CliOutput;
+use fortified_llm_client::CliOutput;
 use std::{fs, io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 
@@ -20,7 +20,7 @@ use tempfile::NamedTempFile;
 /// # Example
 ///
 /// ```ignore
-/// use secure_llm_client::CliOutput;
+/// use fortified_llm_client::CliOutput;
 /// use std::path::PathBuf;
 ///
 /// // Write to stdout
@@ -69,7 +69,7 @@ pub fn write_output(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use secure_llm_client::Metadata;
+    use fortified_llm_client::Metadata;
     use std::fs;
     use tempfile::TempDir;
 

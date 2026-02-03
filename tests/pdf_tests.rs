@@ -1,4 +1,6 @@
-use secure_llm_client::{extract_text_from_pdf, is_docling_available, ContentFormat, PdfContent};
+use fortified_llm_client::{
+    extract_text_from_pdf, is_docling_available, ContentFormat, PdfContent,
+};
 use std::path::Path;
 
 /// Test simple single-page PDF extraction

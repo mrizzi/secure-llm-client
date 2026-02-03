@@ -2,7 +2,7 @@
 //
 // Ensures all error variants have proper messages, exit codes, and context
 
-use secure_llm_client::CliError;
+use fortified_llm_client::CliError;
 
 #[test]
 fn test_all_error_variants_have_non_empty_messages() {

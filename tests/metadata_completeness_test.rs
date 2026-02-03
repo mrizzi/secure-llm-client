@@ -4,11 +4,11 @@
 //! reflected in the metadata output. This prevents regression where new
 //! config fields are added but not included in metadata.
 
-use mockito::Server;
-use secure_llm_client::{
+use fortified_llm_client::{
     config_builder::ConfigBuilder, evaluate, evaluate_with_guardrails, GuardrailProviderConfig,
     OutputGuardrailProviderConfig, Provider, ResponseFormat,
 };
+use mockito::Server;
 
 /// Test that all EvaluationConfig fields appear in Metadata for successful evaluation
 #[tokio::test]
@@ -316,7 +316,7 @@ async fn test_metadata_in_error_response() {
 async fn test_metadata_with_pdf_input() {
     // Note: This test would require a real PDF file and docling installed
     // For now, we verify the field is present in the struct
-    use secure_llm_client::Metadata;
+    use fortified_llm_client::Metadata;
 
     let metadata = Metadata {
         model: "test".to_string(),
@@ -416,7 +416,7 @@ async fn test_metadata_json_serialization_completeness() {
 /// Test metadata with file inputs - verifies file paths are tracked instead of content
 #[tokio::test]
 async fn test_metadata_with_file_inputs() {
-    use secure_llm_client::config_builder::ConfigBuilder;
+    use fortified_llm_client::config_builder::ConfigBuilder;
     use std::path::PathBuf;
 
     let mut server = Server::new_async().await;
@@ -471,7 +471,7 @@ async fn test_metadata_with_file_inputs() {
 fn test_metadata_struct_completeness_compile_check() {
     // This test ensures Metadata has all the fields we expect
     // If a new field is added to EvaluationConfig, this should be updated
-    use secure_llm_client::Metadata;
+    use fortified_llm_client::Metadata;
 
     let _metadata = Metadata {
         // Execution results

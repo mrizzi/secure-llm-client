@@ -1,4 +1,4 @@
-use secure_llm_client::guardrails::{
+use fortified_llm_client::guardrails::{
     GuardrailProvider, InputGuardrail, InputGuardrailConfig, OutputGuardrail, OutputGuardrailConfig,
 };
 

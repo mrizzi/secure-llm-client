@@ -24,7 +24,7 @@ use serde_json::Value;
 ///
 /// ```no_run
 /// use serde_json::json;
-/// use secure_llm_client::schema_validator::validate_json_schema;
+/// use fortified_llm_client::schema_validator::validate_json_schema;
 ///
 /// let schema = json!({
 ///     "type": "object",
@@ -35,7 +35,7 @@ use serde_json::Value;
 /// });
 ///
 /// validate_json_schema(&schema)?;
-/// # Ok::<(), secure_llm_client::CliError>(())
+/// # Ok::<(), fortified_llm_client::CliError>(())
 /// ```
 pub fn validate_json_schema(schema: &Value) -> Result<(), CliError> {
     // Attempt to compile the schema - this validates it against Draft 7 metaschema

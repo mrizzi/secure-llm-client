@@ -1,20 +1,20 @@
 [package]
-name = "secure-llm-client"
+name = "fortified-llm-client"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Secure LLM client library with guardrails, PDF extraction, and multi-provider support"
-repository = "https://github.com/mrizzi/secure-llm-client"
+description = "LLM client library fortified by multi-layered security guardrails, PDF extraction, and multi-provider support"
+repository = "https://github.com/mrizzi/fortified-llm-client"
 readme = "README.md"
 keywords = ["llm", "ai", "security", "guardrails", "openai"]
 categories = ["command-line-utilities", "api-bindings"]
 
 [lib]
-name = "secure_llm_client"
+name = "fortified_llm_client"
 path = "src/lib.rs"
 
 [[bin]]
-name = "secure-llm-client"
+name = "fortified-llm-client"
 path = "src/main.rs"
 
 [dependencies]

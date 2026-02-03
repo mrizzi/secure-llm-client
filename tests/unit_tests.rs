@@ -1,4 +1,4 @@
-// Unit tests for secure-llm-client
+// Unit tests for fortified-llm-client
 
 // Note: To access internal modules for testing, we need to make them public in lib.rs
 // For now, we'll test through the binary's public interface

@@ -2,8 +2,8 @@
 //
 // Tests how the client handles malformed, incomplete, or unexpected API responses
 
+use fortified_llm_client::{evaluate, EvaluationConfig, Provider};
 use mockito::Server;
-use secure_llm_client::{evaluate, EvaluationConfig, Provider};
 
 async fn create_test_config(api_url: String) -> EvaluationConfig {
     EvaluationConfig {

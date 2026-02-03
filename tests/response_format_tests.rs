@@ -1,4 +1,4 @@
-use secure_llm_client::ResponseFormat;
+use fortified_llm_client::ResponseFormat;
 use serde_json::json;
 
 #[test]

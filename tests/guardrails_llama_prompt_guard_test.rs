@@ -3,7 +3,7 @@
 //! These tests verify that Llama Prompt Guard can be configured via TOML files
 //! and that the provider is properly created with correct settings.
 
-use secure_llm_client::{
+use fortified_llm_client::{
     create_guardrail_provider, load_config_file, AggregationMode, ConfigFileRequest, ExecutionMode,
     GuardrailProvider, GuardrailProviderConfig, LlamaPromptGuardConfig, LlamaPromptGuardProvider,
 };
