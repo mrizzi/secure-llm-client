@@ -1,7 +1,11 @@
-use crate::error::CliError;
-use crate::guardrails::gpt_oss_safeguard::GptOssSafeguardConfig;
-use crate::guardrails::input::InputGuardrailConfig;
-use crate::guardrails::llama_guard::{LlamaGuardCategory, LlamaGuardConfig};
+use crate::{
+    error::CliError,
+    guardrails::{
+        gpt_oss_safeguard::GptOssSafeguardConfig,
+        input::InputGuardrailConfig,
+        llama_guard::{LlamaGuardCategory, LlamaGuardConfig},
+    },
+};
 use serde::{Deserialize, Serialize};
 
 /// Default function for LlamaGuard enabled_categories (all categories enabled)
@@ -334,11 +338,10 @@ impl From<InputGuardrailConfig> for GuardrailConfig {
 pub fn create_guardrail_provider(
     config: &GuardrailProviderConfig,
 ) -> Result<Box<dyn crate::guardrails::provider::GuardrailProvider>, crate::error::CliError> {
-    use crate::guardrails::gpt_oss_safeguard::GptOssSafeguardProvider;
-    use crate::guardrails::hybrid::HybridGuardrail;
-    use crate::guardrails::input::InputGuardrail;
-    use crate::guardrails::llama_guard::LlamaGuardProvider;
-    use crate::guardrails::provider::Severity;
+    use crate::guardrails::{
+        gpt_oss_safeguard::GptOssSafeguardProvider, hybrid::HybridGuardrail, input::InputGuardrail,
+        llama_guard::LlamaGuardProvider, provider::Severity,
+    };
 
     match config {
         GuardrailProviderConfig::Regex {
@@ -443,10 +446,10 @@ pub fn create_guardrail_provider(
 pub fn create_output_guardrail_provider(
     config: &OutputGuardrailProviderConfig,
 ) -> Result<Box<dyn crate::guardrails::provider::GuardrailProvider>, crate::error::CliError> {
-    use crate::guardrails::gpt_oss_safeguard::GptOssSafeguardProvider;
-    use crate::guardrails::hybrid::HybridGuardrail;
-    use crate::guardrails::llama_guard::LlamaGuardProvider;
-    use crate::guardrails::output::OutputGuardrail;
+    use crate::guardrails::{
+        gpt_oss_safeguard::GptOssSafeguardProvider, hybrid::HybridGuardrail,
+        llama_guard::LlamaGuardProvider, output::OutputGuardrail,
+    };
 
     match config {
         OutputGuardrailProviderConfig::Regex {

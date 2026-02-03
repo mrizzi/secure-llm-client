@@ -1,6 +1,8 @@
-use crate::error::CliError;
-use crate::models::{Message, OpenAIRequest, OpenAIResponse};
-use crate::provider::{InvokeParams, LlmProvider};
+use crate::{
+    error::CliError,
+    models::{Message, OpenAIRequest, OpenAIResponse},
+    provider::{InvokeParams, LlmProvider},
+};
 use async_trait::async_trait;
 use reqwest::Client;
 

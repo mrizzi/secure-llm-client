@@ -1,6 +1,8 @@
-use crate::error::CliError;
-use crate::models::{OllamaOptions, OllamaRequest, OllamaResponse};
-use crate::provider::{InvokeParams, LlmProvider};
+use crate::{
+    error::CliError,
+    models::{OllamaOptions, OllamaRequest, OllamaResponse},
+    provider::{InvokeParams, LlmProvider},
+};
 use async_trait::async_trait;
 use reqwest::Client;
 

@@ -16,13 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install Rust Nightly
+        uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
 
       - name: Check formatting
-        run: cargo fmt --check
+        run: cargo +nightly fmt --check
 
   check:
     name: Cargo Check

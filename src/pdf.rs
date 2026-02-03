@@ -1,6 +1,5 @@
 use crate::error::CliError;
-use std::path::Path;
-use std::process::Command;
+use std::{path::Path, process::Command};
 use tokio::task;
 
 const DOCLING_COMMAND: &str = "docling";

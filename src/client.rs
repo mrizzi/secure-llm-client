@@ -1,6 +1,8 @@
-use crate::error::CliError;
-use crate::provider::{InvokeParams, LlmProvider};
-use crate::providers::create_provider;
+use crate::{
+    error::CliError,
+    provider::{InvokeParams, LlmProvider},
+    providers::create_provider,
+};
 
 pub use crate::provider::ProviderType as Provider;
 

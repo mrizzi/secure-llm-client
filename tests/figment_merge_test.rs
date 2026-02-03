@@ -6,8 +6,7 @@
 // Priority: CLI args > Config file
 // Supports: JSON (.json) and TOML (.toml) formats
 
-use std::fs;
-use std::process::Command;
+use std::{fs, process::Command};
 use tempfile::NamedTempFile;
 
 // Helper to run the CLI and parse the output

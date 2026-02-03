@@ -1,6 +1,10 @@
-use crate::error::CliError;
-use crate::guardrails::config::{AggregationMode, ExecutionMode};
-use crate::guardrails::provider::{GuardrailProvider, GuardrailResult};
+use crate::{
+    error::CliError,
+    guardrails::{
+        config::{AggregationMode, ExecutionMode},
+        provider::{GuardrailProvider, GuardrailResult},
+    },
+};
 use async_trait::async_trait;
 
 /// Composite guardrail combining multiple providers
@@ -189,8 +193,10 @@ impl GuardrailProvider for HybridGuardrail {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::guardrails::input::{InputGuardrail, InputGuardrailConfig};
-    use crate::guardrails::provider::{Severity, Violation};
+    use crate::guardrails::{
+        input::{InputGuardrail, InputGuardrailConfig},
+        provider::{Severity, Violation},
+    };
 
     #[tokio::test]
     async fn test_sequential_all_must_pass() {

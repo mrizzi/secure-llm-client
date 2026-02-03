@@ -1,7 +1,6 @@
 use crate::provider::{LlmProvider, ProviderType};
 
-use super::ollama::OllamaProvider;
-use super::openai::OpenAIProvider;
+use super::{ollama::OllamaProvider, openai::OpenAIProvider};
 
 /// Detect API format from URL
 ///

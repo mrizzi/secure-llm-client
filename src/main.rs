@@ -15,8 +15,7 @@ use secure_llm_client::{
     evaluate, CliError, CliOutput, Metadata, Provider,
 };
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
-use std::process;
+use std::{path::PathBuf, process};
 
 #[derive(Parser, Debug, Clone, Serialize, Deserialize)]
 #[command(name = "secure-llm-client")]

@@ -3,12 +3,10 @@
 //! Provides a clean separation between CLI argument parsing and configuration construction.
 //! Follows the Builder pattern for testability and reusability.
 
-use crate::config::ConfigFileRequest;
-use crate::constants::llm_defaults;
-use crate::error::CliError;
-use crate::model_registry;
-use crate::schema_validator;
-use crate::{EvaluationConfig, Provider, ResponseFormat};
+use crate::{
+    config::ConfigFileRequest, constants::llm_defaults, error::CliError, model_registry,
+    schema_validator, EvaluationConfig, Provider, ResponseFormat,
+};
 use std::path::PathBuf;
 
 /// Minimum values for validation

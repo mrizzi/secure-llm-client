@@ -1,7 +1,9 @@
-use crate::client::LlmClient;
-use crate::error::CliError;
-use crate::guardrails::provider::{GuardrailProvider, GuardrailResult, Severity, Violation};
-use crate::provider::InvokeParams;
+use crate::{
+    client::LlmClient,
+    error::CliError,
+    guardrails::provider::{GuardrailProvider, GuardrailResult, Severity, Violation},
+    provider::InvokeParams,
+};
 use async_trait::async_trait;
 use regex::Regex;
 use serde::{Deserialize, Serialize};

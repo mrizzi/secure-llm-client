@@ -199,7 +199,9 @@ Contributions are welcome! To ensure smooth collaboration, please follow these s
    - Create a feature branch
    - Make your changes
    - Ensure all tests pass: `cargo test`
-   - Follow Rust conventions: `cargo fmt` and `cargo clippy`
+   - Follow Rust conventions: `cargo +nightly fmt` and `cargo clippy`
    - Open a PR referencing the issue number
 
 **Note**: Pull requests without a corresponding issue may be closed. This process helps maintain code quality and project direction.
+
+**Why `+nightly`?** The `cargo +nightly fmt` command is required because this project uses the `imports_granularity` feature in `rustfmt.toml`, which is only available in Rust nightly (see [tracking issue #4991](https://github.com/rust-lang/rustfmt/issues/4991)). Make sure you have the nightly toolchain installed: `rustup toolchain install nightly`.

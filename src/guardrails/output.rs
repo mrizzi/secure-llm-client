@@ -1,7 +1,11 @@
-use crate::constants::{guardrails, output_limits};
-use crate::error::CliError;
-use crate::guardrails::patterns::{load_patterns_from_file, PatternDefinition};
-use crate::guardrails::provider::{GuardrailProvider, GuardrailResult, Severity, Violation};
+use crate::{
+    constants::{guardrails, output_limits},
+    error::CliError,
+    guardrails::{
+        patterns::{load_patterns_from_file, PatternDefinition},
+        provider::{GuardrailProvider, GuardrailResult, Severity, Violation},
+    },
+};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;

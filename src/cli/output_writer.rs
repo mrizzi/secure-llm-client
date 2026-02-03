@@ -1,7 +1,5 @@
 use secure_llm_client::CliOutput;
-use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
+use std::{fs, io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 
 /// Write CLI output to stdout or file with atomic writes

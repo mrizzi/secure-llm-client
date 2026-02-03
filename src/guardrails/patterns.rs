@@ -1,8 +1,6 @@
-use crate::error::CliError;
-use crate::guardrails::provider::Severity;
+use crate::{error::CliError, guardrails::provider::Severity};
 use regex::Regex;
-use std::fs;
-use std::path::Path;
+use std::{fs, path::Path};
 
 /// Pattern scope (where the pattern applies)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

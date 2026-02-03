@@ -61,8 +61,7 @@ pub use provider::{InvokeParams, LlmProvider, ProviderType};
 pub use providers::{create_provider, detect_provider_type, OllamaProvider, OpenAIProvider};
 pub use token_estimator::TokenEstimator;
 
-use std::path::PathBuf;
-use std::time::Instant;
+use std::{path::PathBuf, time::Instant};
 
 /// Configuration for LLM evaluation
 #[derive(Debug, Clone)]

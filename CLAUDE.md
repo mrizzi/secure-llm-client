@@ -55,7 +55,7 @@ cargo check
 cargo clippy
 
 # Format code
-cargo fmt
+cargo +nightly fmt
 ```
 
 ### Pre-Push Checklist
@@ -64,7 +64,7 @@ cargo fmt
 
 ```bash
 # 1. Check formatting (CI fails if not formatted)
-cargo fmt --check
+cargo +nightly fmt --check
 
 # 2. Verify code compiles (warnings treated as errors)
 RUSTFLAGS="-D warnings" cargo check
@@ -78,7 +78,7 @@ RUSTFLAGS="-D warnings" cargo test
 
 **Quick one-liner to run all CI checks:**
 ```bash
-cargo fmt --check && RUSTFLAGS="-D warnings" cargo check && cargo clippy -- -D warnings && RUSTFLAGS="-D warnings" cargo test
+cargo +nightly fmt --check && RUSTFLAGS="-D warnings" cargo check && cargo clippy -- -D warnings && RUSTFLAGS="-D warnings" cargo test
 ```
 
 ## Architecture

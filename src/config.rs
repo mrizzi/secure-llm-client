@@ -1,8 +1,6 @@
-use crate::error::CliError;
-use crate::guardrails::GuardrailConfig;
+use crate::{error::CliError, guardrails::GuardrailConfig};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::Path;
+use std::{fs, path::Path};
 
 /// Configuration file request format (supports both JSON and TOML)
 #[derive(Debug, Clone, Serialize, Deserialize)]

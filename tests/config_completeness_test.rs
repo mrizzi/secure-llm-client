@@ -6,8 +6,7 @@
 // IMPORTANT: When adding new fields to ConfigFileRequest, you MUST update this test!
 // This test should include EVERY field defined in ConfigFileRequest struct.
 
-use secure_llm_client::config_builder::ConfigBuilder;
-use secure_llm_client::load_config_file;
+use secure_llm_client::{config_builder::ConfigBuilder, load_config_file};
 use std::fs;
 use tempfile::NamedTempFile;
 

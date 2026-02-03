@@ -1,5 +1,4 @@
-use crate::constants::token_estimation;
-use crate::model_registry;
+use crate::{constants::token_estimation, model_registry};
 
 /// Token estimator for calculating context requirements
 pub struct TokenEstimator {

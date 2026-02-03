@@ -1,5 +1,4 @@
-use crate::error::CliError;
-use crate::models::ResponseFormat;
+use crate::{error::CliError, models::ResponseFormat};
 use async_trait::async_trait;
 
 /// Parameters for LLM invocation
