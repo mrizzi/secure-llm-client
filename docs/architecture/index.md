@@ -55,7 +55,7 @@ The evaluation flow follows this sequence:
 
 ## Section Contents
 
-- **[Layers]({% link architecture/layers.md %})** - 5-layer design details
-- **[Evaluation Pipeline]({% link architecture/evaluation-pipeline.md %})** - Step-by-step execution flow
-- **[Providers]({% link architecture/providers.md %})** - Provider detection and implementation
-- **[Testing]({% link architecture/testing.md %})** - Test organization and strategy
+- **[Layers]({{ site.baseurl }}{% link architecture/layers.md %})** - 5-layer design details
+- **[Evaluation Pipeline]({{ site.baseurl }}{% link architecture/evaluation-pipeline.md %})** - Step-by-step execution flow
+- **[Providers]({{ site.baseurl }}{% link architecture/providers.md %})** - Provider detection and implementation
+- **[Testing]({{ site.baseurl }}{% link architecture/testing.md %})** - Test organization and strategy

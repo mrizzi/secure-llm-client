@@ -16,10 +16,10 @@ A Rust library and CLI tool for interacting with Large Language Model (LLM) prov
 
 ## Quick Links
 
-- [Getting Started]({% link getting-started/index.md %})
-- [User Guide]({% link user-guide/index.md %})
-- [Architecture]({% link architecture/index.md %})
-- [Guardrails]({% link guardrails/index.md %})
+- [Getting Started]({{ site.baseurl }}{% link getting-started/index.md %})
+- [User Guide]({{ site.baseurl }}{% link user-guide/index.md %})
+- [Architecture]({{ site.baseurl }}{% link architecture/index.md %})
+- [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %})
 
 ## Key Features
 
@@ -45,5 +45,5 @@ A Rust library and CLI tool for interacting with Large Language Model (LLM) prov
 - Context limit validation
 - Per-request token budget control
 
-[Get Started]({% link getting-started/installation.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Get Started]({{ site.baseurl }}{% link getting-started/installation.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [View on GitHub](https://github.com/mrizzi/fortified-llm-client){: .btn .fs-5 .mb-4 .mb-md-0 }

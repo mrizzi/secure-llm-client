@@ -14,12 +14,12 @@ Comprehensive guides for using Fortified LLM Client in your projects.
 
 This section covers:
 
-- **[CLI Usage]({% link user-guide/cli-usage.md %})** - Complete CLI reference with all flags and options
-- **[Library API]({% link user-guide/library-api.md %})** - Rust library API documentation and examples
-- **[Configuration]({% link user-guide/configuration.md %})** - Config file formats and merging behavior
-- **[PDF Extraction]({% link user-guide/pdf-extraction.md %})** - Extract and analyze PDF documents
-- **[Response Formats]({% link user-guide/response-formats.md %})** - Control output format (text, JSON, JSON Schema)
-- **[Token Management]({% link user-guide/token-management.md %})** - Estimate and validate token usage
+- **[CLI Usage]({{ site.baseurl }}{% link user-guide/cli-usage.md %})** - Complete CLI reference with all flags and options
+- **[Library API]({{ site.baseurl }}{% link user-guide/library-api.md %})** - Rust library API documentation and examples
+- **[Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %})** - Config file formats and merging behavior
+- **[PDF Extraction]({{ site.baseurl }}{% link user-guide/pdf-extraction.md %})** - Extract and analyze PDF documents
+- **[Response Formats]({{ site.baseurl }}{% link user-guide/response-formats.md %})** - Control output format (text, JSON, JSON Schema)
+- **[Token Management]({{ site.baseurl }}{% link user-guide/token-management.md %})** - Estimate and validate token usage
 
 ## Quick Reference
 
@@ -85,7 +85,7 @@ fortified-llm-client \
   --system-text "Summarize the key points"
 ```
 
-See [PDF Extraction]({% link user-guide/pdf-extraction.md %}) for details.
+See [PDF Extraction]({{ site.baseurl }}{% link user-guide/pdf-extraction.md %}) for details.
 
 ### 3. Structured JSON Output
 
@@ -99,7 +99,7 @@ fortified-llm-client \
   --response-format-schema schema.json
 ```
 
-See [Response Formats]({% link user-guide/response-formats.md %}) for details.
+See [Response Formats]({{ site.baseurl }}{% link user-guide/response-formats.md %}) for details.
 
 ### 4. With Input Validation
 
@@ -122,10 +122,10 @@ detect_pii = true
 detect_prompt_injection = true
 ```
 
-See [Guardrails]({% link guardrails/index.md %}) for comprehensive security options.
+See [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %}) for comprehensive security options.
 
 ## Next Steps
 
-- New users: Start with [CLI Usage]({% link user-guide/cli-usage.md %}) for a complete flag reference
-- Library users: See [Library API]({% link user-guide/library-api.md %}) for Rust integration
-- Advanced users: Explore [Configuration]({% link user-guide/configuration.md %}) for complex setups
+- New users: Start with [CLI Usage]({{ site.baseurl }}{% link user-guide/cli-usage.md %}) for a complete flag reference
+- Library users: See [Library API]({{ site.baseurl }}{% link user-guide/library-api.md %}) for Rust integration
+- Advanced users: Explore [Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %}) for complex setups

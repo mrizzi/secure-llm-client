@@ -157,7 +157,7 @@ temperature = 0.7
 max_tokens = 2000
 ```
 
-See [Configuration]({% link user-guide/configuration.md %}) for full config file documentation.
+See [Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %}) for full config file documentation.
 
 ## Sampling Parameters
 
@@ -222,7 +222,7 @@ When enabled:
 2. Validates against context limit
 3. Fails early if exceeds limit (saves API cost)
 
-See [Token Management]({% link user-guide/token-management.md %}) for details.
+See [Token Management]({{ site.baseurl }}{% link user-guide/token-management.md %}) for details.
 
 ### --context-limit
 
@@ -263,7 +263,7 @@ See [Token Management]({% link user-guide/token-management.md %}) for details.
 --response-format json-schema --response-format-schema schema.json
 ```
 
-See [Response Formats]({% link user-guide/response-formats.md %}) for complete guide.
+See [Response Formats]({{ site.baseurl }}{% link user-guide/response-formats.md %}) for complete guide.
 
 ### --response-format-schema
 
@@ -503,7 +503,7 @@ fortified-llm-client --version
 
 ## Next Steps
 
-- [Library API]({% link user-guide/library-api.md %}) - Use from Rust code
-- [Configuration]({% link user-guide/configuration.md %}) - Config file formats
-- [Guardrails]({% link guardrails/index.md %}) - Advanced security validation
-- [Examples]({% link examples/index.md %}) - More use cases
+- [Library API]({{ site.baseurl }}{% link user-guide/library-api.md %}) - Use from Rust code
+- [Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %}) - Config file formats
+- [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %}) - Advanced security validation
+- [Examples]({{ site.baseurl }}{% link examples/index.md %}) - More use cases

@@ -511,7 +511,7 @@ let config = EvaluationConfig {
 
 ## Next Steps
 
-- [Configuration]({% link user-guide/configuration.md %}) - Config file formats
-- [Guardrails]({% link guardrails/index.md %}) - Security validation
-- [Examples]({% link examples/index.md %}) - More code samples
-- [Error Handling]({% link advanced/error-handling.md %}) - Detailed error handling guide
+- [Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %}) - Config file formats
+- [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %}) - Security validation
+- [Examples]({{ site.baseurl }}{% link examples/index.md %}) - More code samples
+- [Error Handling]({{ site.baseurl }}{% link advanced/error-handling.md %}) - Detailed error handling guide

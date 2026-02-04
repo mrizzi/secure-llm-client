@@ -6,7 +6,8 @@ baseurl: "/fortified-llm-client"
 repository: mrizzi/fortified-llm-client
 
 # Theme
-remote_theme: just-the-docs/just-the-docs@v0.8.2
+theme: just-the-docs  # For local development
+remote_theme: just-the-docs/just-the-docs@v0.8.2  # For GitHub Pages
 
 # Color scheme
 color_scheme: light

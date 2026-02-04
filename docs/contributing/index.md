@@ -15,14 +15,14 @@ Help improve Fortified LLM Client!
 1. Fork the repository
 2. Create a feature branch
 3. Make changes with tests
-4. Run [CI checklist]({% link contributing/ci-checklist.md %})
+4. Run [CI checklist]({{ site.baseurl }}{% link contributing/ci-checklist.md %})
 5. Submit pull request
 
 ## Guidelines
 
-- **[Development Setup]({% link contributing/development-setup.md %})** - Environment setup
-- **[CI Checklist]({% link contributing/ci-checklist.md %})** - Pre-push validation
-- **[Code Guidelines]({% link contributing/code-guidelines.md %})** - Coding standards
+- **[Development Setup]({{ site.baseurl }}{% link contributing/development-setup.md %})** - Environment setup
+- **[CI Checklist]({{ site.baseurl }}{% link contributing/ci-checklist.md %})** - Pre-push validation
+- **[Code Guidelines]({{ site.baseurl }}{% link contributing/code-guidelines.md %})** - Coding standards
 
 ## Contribution Types
 

@@ -89,4 +89,4 @@ Any API compatible with OpenAI's `/v1/chat/completions` endpoint works:
 
 ## Next Steps
 
-Once your system meets these requirements, proceed to [Installation]({% link getting-started/installation.md %}).
+Once your system meets these requirements, proceed to [Installation]({{ site.baseurl }}{% link getting-started/installation.md %}).

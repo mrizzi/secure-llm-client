@@ -389,6 +389,6 @@ Match model to task:
 
 ## Next Steps
 
-- [PDF Extraction]({% link user-guide/pdf-extraction.md %}) - Handle large PDFs
-- [Response Formats]({% link user-guide/response-formats.md %}) - Control output structure
-- [Configuration]({% link user-guide/configuration.md %}) - Set defaults
+- [PDF Extraction]({{ site.baseurl }}{% link user-guide/pdf-extraction.md %}) - Handle large PDFs
+- [Response Formats]({{ site.baseurl }}{% link user-guide/response-formats.md %}) - Control output structure
+- [Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %}) - Set defaults

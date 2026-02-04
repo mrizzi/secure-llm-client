@@ -254,5 +254,5 @@ fortified-llm-client -c guardrails.toml --user-text "john.doe@example.com"
 
 ## See Also
 
-- [Hybrid Guardrails]({% link guardrails/hybrid.md %}) - Combine pattern + LLM checks
-- [Llama Guard]({% link guardrails/llama-guard.md %}) - Advanced semantic validation
+- [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) - Combine pattern + LLM checks
+- [Llama Guard]({{ site.baseurl }}{% link guardrails/llama-guard.md %}) - Advanced semantic validation

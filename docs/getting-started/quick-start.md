@@ -11,7 +11,7 @@ This tutorial walks you through your first LLM interactions using both the CLI a
 
 ## Prerequisites
 
-- Fortified LLM Client [installed]({% link getting-started/installation.md %})
+- Fortified LLM Client [installed]({{ site.baseurl }}{% link getting-started/installation.md %})
 - Access to an LLM provider (Ollama or OpenAI)
 
 ## CLI Quick Start
@@ -234,14 +234,14 @@ Or use `--api-key-name` flag to specify a different variable name.
 
 Now that you've completed the quick start:
 
-- **[User Guide]({% link user-guide/index.md %})** - Explore all CLI flags and library options
-- **[Configuration]({% link user-guide/configuration.md %})** - Learn about config file formats
-- **[Guardrails]({% link guardrails/index.md %})** - Add security validation to your prompts
-- **[Examples]({% link examples/index.md %})** - See more advanced use cases
+- **[User Guide]({{ site.baseurl }}{% link user-guide/index.md %})** - Explore all CLI flags and library options
+- **[Configuration]({{ site.baseurl }}{% link user-guide/configuration.md %})** - Learn about config file formats
+- **[Guardrails]({{ site.baseurl }}{% link guardrails/index.md %})** - Add security validation to your prompts
+- **[Examples]({{ site.baseurl }}{% link examples/index.md %})** - See more advanced use cases
 
 ## Learn More
 
-- [CLI Usage]({% link user-guide/cli-usage.md %}) - Full CLI reference
-- [Library API]({% link user-guide/library-api.md %}) - Complete API documentation
-- [PDF Extraction]({% link user-guide/pdf-extraction.md %}) - Work with PDF files
-- [Response Formats]({% link user-guide/response-formats.md %}) - JSON Schema validation
+- [CLI Usage]({{ site.baseurl }}{% link user-guide/cli-usage.md %}) - Full CLI reference
+- [Library API]({{ site.baseurl }}{% link user-guide/library-api.md %}) - Complete API documentation
+- [PDF Extraction]({{ site.baseurl }}{% link user-guide/pdf-extraction.md %}) - Work with PDF files
+- [Response Formats]({{ site.baseurl }}{% link user-guide/response-formats.md %}) - JSON Schema validation

@@ -441,6 +441,6 @@ Prevent unexpected fields in strict mode:
 
 ## Next Steps
 
-- [Token Management]({% link user-guide/token-management.md %}) - Estimate tokens
-- [PDF Extraction]({% link user-guide/pdf-extraction.md %}) - Extract data from PDFs
-- [Examples]({% link examples/basic-usage.md %}) - More examples
+- [Token Management]({{ site.baseurl }}{% link user-guide/token-management.md %}) - Estimate tokens
+- [PDF Extraction]({{ site.baseurl }}{% link user-guide/pdf-extraction.md %}) - Extract data from PDFs
+- [Examples]({{ site.baseurl }}{% link examples/basic-usage.md %}) - More examples

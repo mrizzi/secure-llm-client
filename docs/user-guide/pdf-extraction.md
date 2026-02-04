@@ -455,6 +455,6 @@ For data extraction, enforce structure:
 
 ## Next Steps
 
-- [Response Formats]({% link user-guide/response-formats.md %}) - Structure LLM output
-- [Token Management]({% link user-guide/token-management.md %}) - Handle large PDFs
-- [Examples]({% link examples/pdf-analysis.md %}) - More PDF workflows
+- [Response Formats]({{ site.baseurl }}{% link user-guide/response-formats.md %}) - Structure LLM output
+- [Token Management]({{ site.baseurl }}{% link user-guide/token-management.md %}) - Handle large PDFs
+- [Examples]({{ site.baseurl }}{% link examples/pdf-analysis.md %}) - More PDF workflows

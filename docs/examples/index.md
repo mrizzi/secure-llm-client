@@ -12,10 +12,10 @@ Practical examples for common use cases.
 
 ## Quick Links
 
-- **[Basic Usage]({% link examples/basic-usage.md %})** - Simple CLI and library examples
-- **[Guardrails Config]({% link examples/guardrails-config.md %})** - All 5 guardrail types configured
-- **[Multi-Provider]({% link examples/multi-provider.md %})** - Switching between OpenAI and Ollama
-- **[PDF Analysis]({% link examples/pdf-analysis.md %})** - PDF extraction workflows
+- **[Basic Usage]({{ site.baseurl }}{% link examples/basic-usage.md %})** - Simple CLI and library examples
+- **[Guardrails Config]({{ site.baseurl }}{% link examples/guardrails-config.md %})** - All 5 guardrail types configured
+- **[Multi-Provider]({{ site.baseurl }}{% link examples/multi-provider.md %})** - Switching between OpenAI and Ollama
+- **[PDF Analysis]({{ site.baseurl }}{% link examples/pdf-analysis.md %})** - PDF extraction workflows
 
 ## Example Categories
 

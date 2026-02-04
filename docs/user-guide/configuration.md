@@ -150,7 +150,7 @@ timeout_secs = 60
 enabled_categories = ["S1", "S2", "S3"]  # Violent Crimes, Non-Violent Crimes, Sex-Related Crimes
 ```
 
-See [Guardrails]({% link guardrails/index.md %}) for all guardrail types and options.
+See [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %}) for all guardrail types and options.
 
 ### Hybrid Guardrails (Defense-in-Depth)
 
@@ -180,7 +180,7 @@ api_url = "http://localhost:11434/v1/chat/completions"
 model = "llama-guard-3"
 ```
 
-See [Hybrid Guardrails]({% link guardrails/hybrid.md %}) for detailed configuration.
+See [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for detailed configuration.
 
 ## JSON Format
 
@@ -247,7 +247,7 @@ See [Hybrid Guardrails]({% link guardrails/hybrid.md %}) for detailed configurat
 
 ### Guardrails Section
 
-See [Guardrails Configuration]({% link guardrails/index.md %}) for complete details.
+See [Guardrails Configuration]({{ site.baseurl }}{% link guardrails/index.md %}) for complete details.
 
 ## CLI-Only Fields
 
@@ -403,6 +403,6 @@ temperature = 0.3
 
 ## Next Steps
 
-- [Guardrails]({% link guardrails/index.md %}) - Configure security validation
-- [Examples]({% link examples/guardrails-config.md %}) - Complete config examples
-- [CLI Usage]({% link user-guide/cli-usage.md %}) - Override config with CLI flags
+- [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %}) - Configure security validation
+- [Examples]({{ site.baseurl }}{% link examples/guardrails-config.md %}) - Complete config examples
+- [CLI Usage]({{ site.baseurl }}{% link user-guide/cli-usage.md %}) - Override config with CLI flags

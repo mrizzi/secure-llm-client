@@ -19,9 +19,9 @@ This section will guide you through installing and using Fortified LLM Client fo
 
 ## Quick Navigation
 
-1. **[Prerequisites]({% link getting-started/prerequisites.md %})** - Check system requirements
-2. **[Installation]({% link getting-started/installation.md %})** - Build from source
-3. **[Quick Start]({% link getting-started/quick-start.md %})** - Your first examples
+1. **[Prerequisites]({{ site.baseurl }}{% link getting-started/prerequisites.md %})** - Check system requirements
+2. **[Installation]({{ site.baseurl }}{% link getting-started/installation.md %})** - Build from source
+3. **[Quick Start]({{ site.baseurl }}{% link getting-started/quick-start.md %})** - Your first examples
 
 ## Overview
 
@@ -34,4 +34,4 @@ Both share the same core functionality: multi-provider support, security guardra
 
 ## Next Steps
 
-Start with [Prerequisites]({% link getting-started/prerequisites.md %}) to ensure your system is ready, then move to [Installation]({% link getting-started/installation.md %}).
+Start with [Prerequisites]({{ site.baseurl }}{% link getting-started/prerequisites.md %}) to ensure your system is ready, then move to [Installation]({{ site.baseurl }}{% link getting-started/installation.md %}).

@@ -1,10 +1,10 @@
 source "https://rubygems.org"
 
-gem "jekyll", "~> 4.3"
+# Use github-pages gem to match GitHub Pages environment exactly
+gem "github-pages", "~> 232", group: :jekyll_plugins
 gem "just-the-docs", "0.8.2"
 
-# Jekyll plugins
+# Additional plugins (github-pages already includes jekyll-seo-tag)
 group :jekyll_plugins do
-  gem "jekyll-seo-tag", "~> 2.8"
   gem "jekyll-github-metadata", "~> 2.16"
 end
