@@ -123,6 +123,56 @@ jobs:
         run: |
           which docling || echo "Docling not in PATH yet (will be available in next step)"
           docling --version
+          docling-tools --help || echo "docling-tools command available"
+
+      - name: Cache Docling models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/docling/models
+          key: ${{ runner.os }}-docling-models-v1
+          restore-keys: |
+            ${{ runner.os }}-docling-models-
+
+      - name: Pre-warm Docling Models
+        run: |
+          echo "Pre-downloading Docling models to prevent race conditions during tests..."
+
+          # Use official docling-tools command with retry logic
+          MAX_ATTEMPTS=3
+          ATTEMPT=1
+
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Downloading Docling models..."
+
+            if docling-tools models download --all 2>&1 | tee /tmp/docling-download.log; then
+              echo "✓ Successfully downloaded Docling models"
+
+              # Verify models were downloaded
+              if [ -d "$HOME/.cache/docling/models" ]; then
+                echo "✓ Models cached at: $HOME/.cache/docling/models"
+                ls -lah "$HOME/.cache/docling/models" || true
+              fi
+
+              exit 0
+            else
+              echo "⚠ Download attempt $ATTEMPT failed"
+              cat /tmp/docling-download.log || true
+
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                DELAY=$((2 ** ATTEMPT))  # Exponential backoff: 2, 4 seconds
+                echo "Retrying in ${DELAY}s..."
+                sleep $DELAY
+              fi
+            fi
+
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+
+          # If all attempts fail, warn but don't fail CI
+          # Tests have their own timeout handling
+          echo "⚠ Warning: Model pre-warming failed after $MAX_ATTEMPTS attempts"
+          echo "Tests will attempt to download models on first use (may cause flakiness)"
+          exit 0
 
       - name: Cache cargo registry
         uses: actions/cache@v4
