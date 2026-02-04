@@ -12,10 +12,10 @@ Deep dives into internal mechanisms and advanced usage.
 
 ## Contents
 
-- **[Config Merging]({% link advanced/config-merging.md %})** - Figment + ConfigBuilder internals
-- **[Error Handling]({% link advanced/error-handling.md %})** - Error types and recovery strategies
-- **[Security]({% link advanced/security.md %})** - Security features checklist
-- **[Extending]({% link advanced/extending.md %})** - Adding providers and guardrails
+- **[Config Merging]({{ site.baseurl }}{% link advanced/config-merging.md %})** - Figment + ConfigBuilder internals
+- **[Error Handling]({{ site.baseurl }}{% link advanced/error-handling.md %})** - Error types and recovery strategies
+- **[Security]({{ site.baseurl }}{% link advanced/security.md %})** - Security features checklist
+- **[Extending]({{ site.baseurl }}{% link advanced/extending.md %})** - Adding providers and guardrails
 
 ## Topics Covered
 

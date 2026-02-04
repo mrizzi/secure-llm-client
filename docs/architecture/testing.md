@@ -308,5 +308,5 @@ proptest! {
 
 ## See Also
 
-- [Contributing]({% link contributing/ci-checklist.md %}) - Pre-push checklist
-- [Layers]({% link architecture/layers.md %}) - What each layer should test
+- [Contributing]({{ site.baseurl }}{% link contributing/ci-checklist.md %}) - Pre-push checklist
+- [Layers]({{ site.baseurl }}{% link architecture/layers.md %}) - What each layer should test

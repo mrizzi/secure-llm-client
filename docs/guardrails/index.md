@@ -99,13 +99,13 @@ detect_toxic = true
 
 ## Section Contents
 
-- **[Input Patterns]({% link guardrails/input-patterns.md %})** - Regex-based input validation
-- **[Output Patterns]({% link guardrails/output-patterns.md %})** - Response quality checks
-- **[Llama Guard]({% link guardrails/llama-guard.md %})** - MLCommons safety taxonomy
-- **[Llama Prompt Guard]({% link guardrails/llama-prompt-guard.md %})** - Jailbreak detection
-- **[GPT OSS Safeguard]({% link guardrails/gpt-oss-safeguard.md %})** - Policy-based validation
-- **[Hybrid Guardrails]({% link guardrails/hybrid.md %})** - Multi-provider strategies
-- **[Custom Policies]({% link guardrails/custom-policies.md %})** - Creating custom policy files
+- **[Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %})** - Regex-based input validation
+- **[Output Patterns]({{ site.baseurl }}{% link guardrails/output-patterns.md %})** - Response quality checks
+- **[Llama Guard]({{ site.baseurl }}{% link guardrails/llama-guard.md %})** - MLCommons safety taxonomy
+- **[Llama Prompt Guard]({{ site.baseurl }}{% link guardrails/llama-prompt-guard.md %})** - Jailbreak detection
+- **[GPT OSS Safeguard]({{ site.baseurl }}{% link guardrails/gpt-oss-safeguard.md %})** - Policy-based validation
+- **[Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %})** - Multi-provider strategies
+- **[Custom Policies]({{ site.baseurl }}{% link guardrails/custom-policies.md %})** - Creating custom policy files
 
 ## Choosing the Right Guardrail
 
@@ -155,4 +155,4 @@ type = "gpt_oss_safeguard"
 
 ## Next Steps
 
-Start with [Input Patterns]({% link guardrails/input-patterns.md %}) for basic validation, then explore [Hybrid Guardrails]({% link guardrails/hybrid.md %}) for defense-in-depth strategies.
+Start with [Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %}) for basic validation, then explore [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for defense-in-depth strategies.

@@ -151,6 +151,6 @@ enabled_categories = ["S1", "S2", "S3", "S4", "S10"]
 
 ## See Also
 
-- [Input Patterns]({% link guardrails/input-patterns.md %})
-- [Llama Guard]({% link guardrails/llama-guard.md %})
-- [GPT OSS Safeguard]({% link guardrails/gpt-oss-safeguard.md %})
+- [Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %})
+- [Llama Guard]({{ site.baseurl }}{% link guardrails/llama-guard.md %})
+- [GPT OSS Safeguard]({{ site.baseurl }}{% link guardrails/gpt-oss-safeguard.md %})

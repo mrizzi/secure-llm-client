@@ -85,5 +85,5 @@ fortified-llm-client -c config.toml --user-text "How do I hack into a system?"
 
 ## See Also
 
-- [Llama Prompt Guard]({% link guardrails/llama-prompt-guard.md %}) - Jailbreak detection
-- [Hybrid Guardrails]({% link guardrails/hybrid.md %}) - Combine with patterns
+- [Llama Prompt Guard]({{ site.baseurl }}{% link guardrails/llama-prompt-guard.md %}) - Jailbreak detection
+- [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) - Combine with patterns

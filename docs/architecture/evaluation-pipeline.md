@@ -205,6 +205,6 @@ Each step can fail with specific error types:
 
 ## See Also
 
-- [Layers]({% link architecture/layers.md %}) - Architecture overview
-- [Providers]({% link architecture/providers.md %}) - LLM provider details
-- [Guardrails]({% link guardrails/index.md %}) - Validation strategies
+- [Layers]({{ site.baseurl }}{% link architecture/layers.md %}) - Architecture overview
+- [Providers]({{ site.baseurl }}{% link architecture/providers.md %}) - LLM provider details
+- [Guardrails]({{ site.baseurl }}{% link guardrails/index.md %}) - Validation strategies

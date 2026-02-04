@@ -117,5 +117,5 @@ policy_file = "my_custom_policy.txt"  # Just the filename
 
 ## See Also
 
-- [Custom Policies]({% link guardrails/custom-policies.md %}) - Policy file format
-- [Hybrid Guardrails]({% link guardrails/hybrid.md %}) - Combine with other checks
+- [Custom Policies]({{ site.baseurl }}{% link guardrails/custom-policies.md %}) - Policy file format
+- [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) - Combine with other checks

@@ -70,7 +70,7 @@ has_children: true   # For parent pages
 Use Liquid tags for internal links:
 
 ```markdown
-[Getting Started]({% link getting-started/index.md %})
+[Getting Started]({{ site.baseurl }}{% link getting-started/index.md %})
 ```
 
 This ensures links work in both local development and production.

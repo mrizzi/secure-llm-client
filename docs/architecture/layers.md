@@ -155,6 +155,6 @@ pub trait GuardrailProvider: Send + Sync {
 
 ## See Also
 
-- [Evaluation Pipeline]({% link architecture/evaluation-pipeline.md %}) - Detailed execution flow
-- [Providers]({% link architecture/providers.md %}) - Provider implementation details
-- [Testing]({% link architecture/testing.md %}) - Testing strategy per layer
+- [Evaluation Pipeline]({{ site.baseurl }}{% link architecture/evaluation-pipeline.md %}) - Detailed execution flow
+- [Providers]({{ site.baseurl }}{% link architecture/providers.md %}) - Provider implementation details
+- [Testing]({{ site.baseurl }}{% link architecture/testing.md %}) - Testing strategy per layer

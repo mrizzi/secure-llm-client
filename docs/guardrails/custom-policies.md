@@ -119,5 +119,5 @@ fortified-llm-client -c config.toml --user-text "How do I hack a website?"
 
 ## See Also
 
-- [GPT OSS Safeguard]({% link guardrails/gpt-oss-safeguard.md %})
+- [GPT OSS Safeguard]({{ site.baseurl }}{% link guardrails/gpt-oss-safeguard.md %})
 - Policy README: `src/guardrails/policies/README.md`

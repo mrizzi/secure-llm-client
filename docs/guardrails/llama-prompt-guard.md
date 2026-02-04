@@ -73,5 +73,5 @@ type = "llama_prompt_guard"
 
 ## See Also
 
-- [Llama Guard]({% link guardrails/llama-guard.md %}) - Safety categories
-- [Input Patterns]({% link guardrails/input-patterns.md %}) - Fast pre-check
+- [Llama Guard]({{ site.baseurl }}{% link guardrails/llama-guard.md %}) - Safety categories
+- [Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %}) - Fast pre-check

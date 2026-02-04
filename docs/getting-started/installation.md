@@ -91,7 +91,7 @@ tokio = { version = "1", features = ["full"] }
 use fortified_llm_client::{evaluate, EvaluationConfig};
 ```
 
-See [Quick Start]({% link getting-started/quick-start.md %}) for complete examples.
+See [Quick Start]({{ site.baseurl }}{% link getting-started/quick-start.md %}) for complete examples.
 
 ## Development Setup
 
@@ -136,7 +136,7 @@ cargo test
 cargo +nightly fmt --check && RUSTFLAGS="-D warnings" cargo check && cargo clippy -- -D warnings && RUSTFLAGS="-D warnings" cargo test
 ```
 
-See [Contributing]({% link contributing/ci-checklist.md %}) for detailed development guidelines.
+See [Contributing]({{ site.baseurl }}{% link contributing/ci-checklist.md %}) for detailed development guidelines.
 
 ## Troubleshooting
 
@@ -174,4 +174,4 @@ rustup update stable
 
 ## Next Steps
 
-Now that you've installed Fortified LLM Client, try the [Quick Start]({% link getting-started/quick-start.md %}) tutorial to run your first examples.
+Now that you've installed Fortified LLM Client, try the [Quick Start]({{ site.baseurl }}{% link getting-started/quick-start.md %}) tutorial to run your first examples.

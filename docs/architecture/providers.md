@@ -308,6 +308,6 @@ async fn test_openai_provider() {
 
 ## See Also
 
-- [Layers]({% link architecture/layers.md %}) - Architecture overview
-- [Evaluation Pipeline]({% link architecture/evaluation-pipeline.md %}) - Where providers fit
-- [User Guide]({% link user-guide/cli-usage.md %}) - Using providers in practice
+- [Layers]({{ site.baseurl }}{% link architecture/layers.md %}) - Architecture overview
+- [Evaluation Pipeline]({{ site.baseurl }}{% link architecture/evaluation-pipeline.md %}) - Where providers fit
+- [User Guide]({{ site.baseurl }}{% link user-guide/cli-usage.md %}) - Using providers in practice
