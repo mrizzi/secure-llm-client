@@ -163,6 +163,24 @@ async fn evaluate_internal(
 ) -> Result<CliOutput, CliError> {
     let start_time = Instant::now();
 
+    // Warn if input guardrails are disabled
+    if config.input_guardrails.is_none() {
+        log::warn!(
+            "Input guardrails are disabled. User-provided content will not be validated. \
+            This may allow malicious prompts, PII, or injection attacks. \
+            Consider enabling input guardrails for production use."
+        );
+    }
+
+    // Warn if output guardrails are disabled
+    if output_guardrails.is_none() {
+        log::warn!(
+            "Output guardrails are disabled. LLM responses will not be validated. \
+            This may allow unsafe, low-quality, or policy-violating content. \
+            Consider enabling output guardrails for production use."
+        );
+    }
+
     // 1. PDF extraction (if PDF input provided)
     let user_prompt = if let Some(pdf_path) = &config.pdf_input {
         // Validate PDF file size before extraction (security protection)
