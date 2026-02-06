@@ -137,15 +137,17 @@ jobs:
         run: |
           echo "Pre-downloading Docling models to prevent race conditions during tests..."
 
-          # Use official docling-tools command with retry logic
+          # Only download models for the 'standard' pipeline (used by tests)
+          # The 'vlm' pipeline requires 5GB+ vision models that exceed GitHub runner disk space
           MAX_ATTEMPTS=3
           ATTEMPT=1
 
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Downloading Docling models..."
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Downloading Docling models (standard pipeline only)..."
 
-            if docling-tools models download --all 2>&1 | tee /tmp/docling-download.log; then
-              echo "✓ Successfully downloaded Docling models"
+            # Download only standard pipeline models (skips large vision models)
+            if docling-tools models download --pipeline standard 2>&1 | tee /tmp/docling-download.log; then
+              echo "✓ Successfully downloaded Docling models for standard pipeline"
 
               # Verify models were downloaded
               if [ -d "$HOME/.cache/docling/models" ]; then
