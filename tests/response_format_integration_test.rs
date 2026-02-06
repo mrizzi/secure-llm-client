@@ -26,6 +26,7 @@ async fn create_test_config(api_url: String) -> EvaluationConfig {
         response_format: None,
         pdf_input: None,
         input_guardrails: None,
+        output_guardrails: None,
         system_prompt_file: None,
         user_prompt_file: None,
     }
@@ -259,7 +260,7 @@ async fn test_no_response_format_treats_as_text() {
     assert!(result.is_ok(), "Should succeed when no format specified");
     let output = result.unwrap();
 
-    // Should default to string wrapping (backward compatible)
+    // Should default to string wrapping
     let response = output.response.as_ref().unwrap();
     assert!(
         response.is_string(),

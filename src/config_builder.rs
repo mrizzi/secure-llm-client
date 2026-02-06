@@ -38,6 +38,7 @@ pub struct ConfigBuilder {
     pub response_format: Option<ResponseFormat>,
     pub pdf_input: Option<PathBuf>,
     pub input_guardrails: Option<crate::GuardrailProviderConfig>,
+    pub output_guardrails: Option<crate::GuardrailProviderConfig>,
 
     // Source tracking (for metadata reproducibility)
     pub system_prompt_file: Option<PathBuf>,
@@ -114,7 +115,16 @@ impl ConfigBuilder {
             self.api_key = file_config.api_key.clone();
         }
         if self.input_guardrails.is_none() {
-            self.input_guardrails = file_config.guardrails.as_ref().map(|g| g.provider.clone());
+            self.input_guardrails = file_config.guardrails.as_ref().and_then(|g| {
+                // Prefer explicit input field, fallback to flattened provider field
+                g.input.clone().or_else(|| g.provider.clone())
+            });
+        }
+        if self.output_guardrails.is_none() {
+            self.output_guardrails = file_config.guardrails.as_ref().and_then(|g| {
+                // Prefer explicit output field, fallback to flattened provider field
+                g.output.clone().or_else(|| g.provider.clone())
+            });
         }
 
         // Handle response_format from config file (only if not set via CLI)
@@ -266,6 +276,12 @@ impl ConfigBuilder {
         self
     }
 
+    /// Set output guardrails configuration
+    pub fn output_guardrails(mut self, guardrails: crate::GuardrailProviderConfig) -> Self {
+        self.output_guardrails = Some(guardrails);
+        self
+    }
+
     /// Build the final EvaluationConfig, applying defaults and validation
     ///
     /// # Errors
@@ -385,6 +401,7 @@ impl ConfigBuilder {
             response_format: self.response_format,
             pdf_input: self.pdf_input,
             input_guardrails: self.input_guardrails,
+            output_guardrails: self.output_guardrails,
             system_prompt_file: self.system_prompt_file,
             user_prompt_file: self.user_prompt_file,
         })

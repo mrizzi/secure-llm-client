@@ -38,7 +38,12 @@ threshold = 0.5
     let guardrails = config.guardrails.unwrap();
 
     // Verify it's LlamaPromptGuard type
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::LlamaPromptGuard {
             api_url,
             model,
@@ -79,7 +84,12 @@ timeout_secs = 10
 
     let guardrails = config.guardrails.unwrap();
 
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::LlamaPromptGuard { threshold, .. } => {
             assert_eq!(*threshold, 0.5); // Default threshold
         }
@@ -143,7 +153,12 @@ check_content_filters = true
 
     let guardrails = config.guardrails.unwrap();
 
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::Composite {
             providers,
             execution,
@@ -235,7 +250,12 @@ timeout_secs = 30
     let guardrails = config.guardrails.unwrap();
 
     // Verify it's a composite with 2 providers
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::Composite { providers, .. } => {
             assert_eq!(providers.len(), 2);
 
@@ -259,7 +279,7 @@ timeout_secs = 30
     }
 
     // Verify provider can be created
-    let provider = create_guardrail_provider(&guardrails.provider);
+    let provider = create_guardrail_provider(guardrails.provider.as_ref().unwrap());
     assert!(provider.is_ok());
     assert_eq!(provider.unwrap().name(), "CompositeGuardrail");
 }

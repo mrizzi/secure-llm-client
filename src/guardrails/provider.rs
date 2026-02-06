@@ -5,11 +5,8 @@ use serde::{Deserialize, Serialize};
 /// Generic guardrail provider trait for extensibility
 #[async_trait]
 pub trait GuardrailProvider: Send + Sync {
-    /// Validate input content before sending to LLM
-    async fn validate_input(&self, content: &str) -> Result<GuardrailResult, CliError>;
-
-    /// Validate output content after LLM response
-    async fn validate_output(&self, content: &str) -> Result<GuardrailResult, CliError>;
+    /// Validate content (works for both input and output)
+    async fn validate(&self, content: &str) -> Result<GuardrailResult, CliError>;
 
     /// Provider name for logging and debugging
     fn name(&self) -> &str;

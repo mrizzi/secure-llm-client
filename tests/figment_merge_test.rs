@@ -159,7 +159,7 @@ fn test_json_config_format_supported() {
 
 #[test]
 fn test_toml_config_format_supported() {
-    // TOML configs should still work (backward compatibility)
+    // TOML config format
     let config_toml = r#"
 api_url = "http://localhost:11434/v1/chat/completions"
 model = "test-model"

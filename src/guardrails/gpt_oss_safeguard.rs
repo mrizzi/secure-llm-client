@@ -113,7 +113,7 @@ impl GptOssSafeguardProvider {
 
 #[async_trait]
 impl GuardrailProvider for GptOssSafeguardProvider {
-    async fn validate_input(&self, content: &str) -> Result<GuardrailResult, CliError> {
+    async fn validate(&self, content: &str) -> Result<GuardrailResult, CliError> {
         // GPT-OSS-Safeguard requires policy as system prompt and content as user prompt
         let response = self
             .client
@@ -131,12 +131,6 @@ impl GuardrailProvider for GptOssSafeguardProvider {
             .await?;
 
         self.parse_json_response(&response)
-    }
-
-    async fn validate_output(&self, content: &str) -> Result<GuardrailResult, CliError> {
-        // Same as validate_input - GPT-OSS-Safeguard doesn't distinguish between
-        // input and output in its classification, just evaluates content against policy
-        self.validate_input(content).await
     }
 
     fn name(&self) -> &str {

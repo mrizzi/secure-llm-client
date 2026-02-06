@@ -216,7 +216,7 @@ impl LlamaGuardProvider {
 
 #[async_trait]
 impl GuardrailProvider for LlamaGuardProvider {
-    async fn validate_input(&self, content: &str) -> Result<GuardrailResult, CliError> {
+    async fn validate(&self, content: &str) -> Result<GuardrailResult, CliError> {
         // Llama Guard 3 is fine-tuned for safety classification and doesn't need
         // elaborate prompting. Just pass the raw content with an empty system prompt.
         let response = self
@@ -228,27 +228,6 @@ impl GuardrailProvider for LlamaGuardProvider {
                 temperature: 0.0,  // Temperature 0 for deterministic safety checks
                 max_tokens: Some(100), // Short response: "safe" or "unsafe\nS1,S3"
                 seed: None,        // No seed needed for guardrails
-                api_key: self.config.api_key.as_deref(),
-                timeout_secs: self.config.timeout_secs,
-                response_format: None, // No response_format needed for guardrails
-            })
-            .await?;
-
-        self.parse_response(&response)
-    }
-
-    async fn validate_output(&self, content: &str) -> Result<GuardrailResult, CliError> {
-        // Same as validate_input - Llama Guard 3 doesn't distinguish between
-        // input and output in its classification, just evaluates content for safety.
-        let response = self
-            .client
-            .invoke(InvokeParams {
-                model: &self.config.model,
-                system_prompt: "", // Empty system prompt - model has built-in safety policy
-                user_prompt: content, // Raw content to evaluate
-                temperature: 0.0,
-                max_tokens: Some(100),
-                seed: None, // No seed needed for guardrails
                 api_key: self.config.api_key.as_deref(),
                 timeout_secs: self.config.timeout_secs,
                 response_format: None, // No response_format needed for guardrails

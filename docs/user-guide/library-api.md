@@ -32,25 +32,24 @@ tokio = { version = "1", features = ["full"] }
 
 ### evaluate()
 
-Basic LLM evaluation without guardrails.
+LLM evaluation with optional security guardrails.
 
 **Signature**:
 ```rust
 pub async fn evaluate(config: EvaluationConfig) -> Result<EvaluationResult, FortifiedError>
 ```
 
-**Example**:
+**Basic Example** (no guardrails):
 ```rust
-use fortified_llm_client::{evaluate, EvaluationConfig};
+use fortified_llm_client::{evaluate, ConfigBuilder};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = EvaluationConfig {
-        api_url: "http://localhost:11434/v1/chat/completions".to_string(),
-        model: "llama3".to_string(),
-        user_prompt: "Explain Rust ownership".to_string(),
-        ..Default::default()
-    };
+    let config = ConfigBuilder::new()
+        .api_url("http://localhost:11434/v1/chat/completions")
+        .model("llama3")
+        .user_prompt("Explain Rust ownership")
+        .build()?;
 
     let result = evaluate(config).await?;
     println!("Response: {}", result.content);
@@ -60,46 +59,75 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### evaluate_with_guardrails()
-
-LLM evaluation with security guardrails loaded from a config file.
-
-**Signature**:
+**With Input Guardrails**:
 ```rust
-pub async fn evaluate_with_guardrails(
-    config: EvaluationConfig,
-    config_file_path: &str,
-) -> Result<EvaluationResult, FortifiedError>
-```
-
-**Example**:
-```rust
-use fortified_llm_client::{evaluate_with_guardrails, EvaluationConfig};
+use fortified_llm_client::{
+    evaluate, ConfigBuilder,
+    guardrails::{GuardrailProviderConfig, RegexGuardrailConfig, Severity},
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = EvaluationConfig {
-        api_url: "http://localhost:11434/v1/chat/completions".to_string(),
-        model: "llama3".to_string(),
-        user_prompt: "Your prompt here".to_string(),
-        ..Default::default()
-    };
+    let input_guardrails = GuardrailProviderConfig::Regex(
+        RegexGuardrailConfig {
+            max_length_bytes: 1048576,  // 1MB limit
+            patterns_file: Some("patterns/input.txt".into()),
+            severity_threshold: Severity::Medium,
+        }
+    );
 
-    let result = evaluate_with_guardrails(config, "config.toml").await?;
+    let config = ConfigBuilder::new()
+        .api_url("http://localhost:11434/v1/chat/completions")
+        .model("llama3")
+        .user_prompt("Your prompt here")
+        .input_guardrails(input_guardrails)
+        .build()?;
+
+    let result = evaluate(config).await?;
     println!("Safe response: {}", result.content);
 
     Ok(())
 }
 ```
 
-**Config file** (`config.toml`):
-```toml
-[guardrails.input]
-type = "patterns"
+**With Both Input and Output Guardrails**:
+```rust
+use fortified_llm_client::{
+    evaluate, ConfigBuilder,
+    guardrails::{GuardrailProviderConfig, RegexGuardrailConfig, Severity},
+};
 
-[guardrails.input.patterns]
-detect_pii = true
-detect_prompt_injection = true
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let input_guardrails = GuardrailProviderConfig::Regex(
+        RegexGuardrailConfig {
+            max_length_bytes: 1048576,
+            patterns_file: Some("patterns/input.txt".into()),
+            severity_threshold: Severity::Medium,
+        }
+    );
+
+    let output_guardrails = GuardrailProviderConfig::Regex(
+        RegexGuardrailConfig {
+            max_length_bytes: 2097152,  // 2MB limit for responses
+            patterns_file: Some("patterns/output.txt".into()),
+            severity_threshold: Severity::High,
+        }
+    );
+
+    let config = ConfigBuilder::new()
+        .api_url("http://localhost:11434/v1/chat/completions")
+        .model("llama3")
+        .user_prompt("Your prompt here")
+        .input_guardrails(input_guardrails)
+        .output_guardrails(output_guardrails)
+        .build()?;
+
+    let result = evaluate(config).await?;
+    println!("Response: {}", result.content);
+
+    Ok(())
+}
 ```
 
 ## Data Structures

@@ -14,12 +14,11 @@ Multi-layered security validation for LLM inputs and outputs.
 
 Fortified LLM Client provides five types of guardrails to protect against unsafe or malicious LLM interactions:
 
-1. **Input Patterns** - Fast regex-based validation (PII, prompt injection)
-2. **Output Patterns** - Response quality and safety checks
-3. **Llama Guard** - MLCommons safety taxonomy (13 categories S1-S13)
-4. **Llama Prompt Guard** - Jailbreak detection
-5. **GPT OSS Safeguard** - GPT-4 based policy validation
-6. **Hybrid** - Composable multi-provider validation
+1. **Regex** - Fast pattern-based validation (custom patterns, length limits)
+2. **Llama Guard** - MLCommons safety taxonomy (13 categories S1-S13)
+3. **Llama Prompt Guard** - Jailbreak detection
+4. **GPT OSS Safeguard** - GPT-4 based policy validation
+5. **Composite** - Composable multi-provider validation
 
 ## Key Concepts
 
@@ -29,15 +28,21 @@ Layer multiple guardrails for comprehensive protection:
 
 ```toml
 [guardrails.input]
-type = "hybrid"
+type = "composite"
+execution = "parallel"
+aggregation = "all_must_pass"
 
-# Layer 1: Fast pattern checks
-[[guardrails.input.hybrid.providers]]
-type = "patterns"
+# Layer 1: Fast regex checks
+[[guardrails.input.providers]]
+type = "regex"
+max_length_bytes = 1048576
+patterns_file = "patterns/input.txt"
 
 # Layer 2: LLM-based validation
-[[guardrails.input.hybrid.providers]]
+[[guardrails.input.providers]]
 type = "llama_guard"
+api_url = "http://localhost:11434/v1/chat/completions"
+model = "llama-guard3:8b"
 ```
 
 ### System Prompts Are Trusted
@@ -51,6 +56,15 @@ type = "llama_guard"
 
 - **Input Guardrails** - Validate before sending to LLM (prevents harmful inputs)
 - **Output Guardrails** - Validate LLM responses (ensures safe outputs)
+
+## Configuration Formats
+
+Guardrails can be configured in two ways:
+
+1. **Separate Input/Output**: Use `[guardrails.input]` and `[guardrails.output]` for different configurations
+2. **Unified**: Use `[guardrails]` to apply the same configuration to both input and output
+
+See the [Configuration Guide]({{ site.baseurl }}{% link user-guide/configuration.md %}) for details.
 
 ## Quick Start
 
@@ -72,39 +86,42 @@ api_url = "http://localhost:11434/v1/chat/completions"
 model = "llama3"
 
 [guardrails.input]
-type = "patterns"
+type = "regex"
 max_length_bytes = 1048576
-
-[guardrails.input.patterns]
-detect_pii = true
-detect_prompt_injection = true
+patterns_file = "patterns/input.txt"
+severity_threshold = "medium"
 
 [guardrails.output]
-type = "patterns"
+type = "regex"
+max_length_bytes = 2097152
+patterns_file = "patterns/output.txt"
+severity_threshold = "high"
+```
 
-[guardrails.output.patterns]
-detect_toxic = true
+Pattern file format (`patterns/input.txt`):
+```
+CRITICAL | SSN | \b\d{3}-\d{2}-\d{4}\b
+HIGH | Credit Card | \b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b
+MEDIUM | Email | [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Z|a-z]{2,}
 ```
 
 ## Guardrail Types
 
 | Type | Speed | Accuracy | Use Case |
 |------|-------|----------|----------|
-| **Input Patterns** | Fast (<10ms) | Good | PII, basic prompt injection |
-| **Output Patterns** | Fast (<10ms) | Good | Toxic content, quality checks |
+| **Regex** | Fast (<10ms) | Good | Custom patterns, length limits (input & output) |
 | **Llama Guard** | Slow (1-3s) | Excellent | Comprehensive safety (S1-S13) |
 | **Llama Prompt Guard** | Slow (1-3s) | Excellent | Advanced jailbreak detection |
 | **GPT OSS Safeguard** | Slow (2-5s) | Excellent | Custom policy validation |
-| **Hybrid** | Variable | Best | Combine multiple strategies |
+| **Composite** | Variable | Best | Combine multiple strategies |
 
 ## Section Contents
 
-- **[Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %})** - Regex-based input validation
-- **[Output Patterns]({{ site.baseurl }}{% link guardrails/output-patterns.md %})** - Response quality checks
+- **[Regex Guardrails]({{ site.baseurl }}{% link guardrails/regex.md %})** - Fast pattern-based validation (input & output)
 - **[Llama Guard]({{ site.baseurl }}{% link guardrails/llama-guard.md %})** - MLCommons safety taxonomy
 - **[Llama Prompt Guard]({{ site.baseurl }}{% link guardrails/llama-prompt-guard.md %})** - Jailbreak detection
 - **[GPT OSS Safeguard]({{ site.baseurl }}{% link guardrails/gpt-oss-safeguard.md %})** - Policy-based validation
-- **[Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %})** - Multi-provider strategies
+- **[Composite Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %})** - Multi-provider strategies
 - **[Custom Policies]({{ site.baseurl }}{% link guardrails/custom-policies.md %})** - Creating custom policy files
 
 ## Choosing the Right Guardrail
@@ -155,4 +172,4 @@ type = "gpt_oss_safeguard"
 
 ## Next Steps
 
-Start with [Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %}) for basic validation, then explore [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for defense-in-depth strategies.
+Start with [Regex Guardrails]({{ site.baseurl }}{% link guardrails/regex.md %}) for basic validation, then explore [Composite Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for defense-in-depth strategies.

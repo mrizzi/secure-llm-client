@@ -22,7 +22,6 @@ pub use config::{load_config_file, ConfigFileRequest};
 pub use error::CliError;
 pub use guardrails::{
     create_guardrail_provider,
-    create_output_guardrail_provider,
 
     AggregationMode,
     ExecutionMode,
@@ -34,9 +33,7 @@ pub use guardrails::{
     GuardrailResult,
     HybridGuardrail,
 
-    // Concrete implementations
     InputGuardrail,
-    InputGuardrailConfig,
     LlamaGuardCategory,
     LlamaGuardConfig,
     LlamaGuardProvider,
@@ -44,9 +41,9 @@ pub use guardrails::{
     LlamaPromptGuardProvider,
     LlamaPromptGuardResult,
     OutputGuardrail,
-    OutputGuardrailConfig,
-    OutputGuardrailProviderConfig,
     ProviderSpecificResult,
+    RegexGuardrail,
+    RegexGuardrailConfig,
 
     // Common types
     Severity,
@@ -81,6 +78,7 @@ pub struct EvaluationConfig {
     pub response_format: Option<ResponseFormat>,
     pub pdf_input: Option<PathBuf>,
     pub input_guardrails: Option<GuardrailProviderConfig>,
+    pub output_guardrails: Option<GuardrailProviderConfig>,
     // Source tracking for metadata (mutually exclusive with inline text)
     pub system_prompt_file: Option<PathBuf>,
     pub user_prompt_file: Option<PathBuf>,
@@ -143,24 +141,13 @@ fn create_metadata(
     }
 }
 
-/// Simplified evaluation function (no output guardrails)
+/// Main evaluation function with optional input and output guardrails
 pub async fn evaluate(config: EvaluationConfig) -> Result<CliOutput, CliError> {
-    evaluate_internal(config, None).await
+    evaluate_internal(config).await
 }
 
-/// Comprehensive evaluation with full guardrails pipeline
-pub async fn evaluate_with_guardrails(
-    config: EvaluationConfig,
-    output_guardrails: Option<OutputGuardrailProviderConfig>,
-) -> Result<CliOutput, CliError> {
-    evaluate_internal(config, output_guardrails).await
-}
-
-/// Internal evaluation implementation (shared by evaluate and evaluate_with_guardrails)
-async fn evaluate_internal(
-    config: EvaluationConfig,
-    output_guardrails: Option<OutputGuardrailProviderConfig>,
-) -> Result<CliOutput, CliError> {
+/// Internal evaluation implementation
+async fn evaluate_internal(config: EvaluationConfig) -> Result<CliOutput, CliError> {
     let start_time = Instant::now();
 
     // Warn if input guardrails are disabled
@@ -173,7 +160,7 @@ async fn evaluate_internal(
     }
 
     // Warn if output guardrails are disabled
-    if output_guardrails.is_none() {
+    if config.output_guardrails.is_none() {
         log::warn!(
             "Output guardrails are disabled. LLM responses will not be validated. \
             This may allow unsafe, low-quality, or policy-violating content. \
@@ -198,7 +185,7 @@ async fn evaluate_internal(
                 "", // No user prompt yet
                 0,  // No tokens estimated yet
                 start_time.elapsed().as_millis() as u64,
-                output_guardrails.is_some(),
+                config.output_guardrails.is_some(),
             );
             return Ok(CliOutput::error(
                 "FILE_TOO_LARGE".to_string(),
@@ -252,7 +239,7 @@ async fn evaluate_internal(
         log::info!("Running input guardrails validation");
         let guardrail = create_guardrail_provider(guardrail_config)?;
         // SECURITY: Only validate user input, not system prompt
-        let validation = guardrail.validate_input(&user_prompt).await?;
+        let validation = guardrail.validate(&user_prompt).await?;
 
         if !validation.passed {
             log::error!("Input guardrails validation FAILED");
@@ -261,7 +248,7 @@ async fn evaluate_internal(
                 &user_prompt,
                 0,
                 start_time.elapsed().as_millis() as u64,
-                output_guardrails.is_some(),
+                config.output_guardrails.is_some(),
             );
 
             let error_msg = validation
@@ -319,7 +306,7 @@ async fn evaluate_internal(
                     &user_prompt,
                     required,
                     start_time.elapsed().as_millis() as u64,
-                    output_guardrails.is_some(),
+                    config.output_guardrails.is_some(),
                 );
                 return Ok(CliOutput::error(
                     "CONTEXT_LIMIT_EXCEEDED".to_string(),
@@ -363,10 +350,10 @@ async fn evaluate_internal(
         .await?;
 
     // 5. Output guardrails (if enabled)
-    let output_guardrails_enabled = output_guardrails.is_some();
-    if let Some(guardrail_config) = &output_guardrails {
-        let guardrail = create_output_guardrail_provider(guardrail_config)?;
-        let validation = guardrail.validate_output(&response).await?;
+    let output_guardrails_enabled = config.output_guardrails.is_some();
+    if let Some(guardrail_config) = &config.output_guardrails {
+        let guardrail = create_guardrail_provider(guardrail_config)?;
+        let validation = guardrail.validate(&response).await?;
 
         if !validation.passed {
             let metadata = create_metadata(

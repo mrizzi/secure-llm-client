@@ -75,31 +75,19 @@ impl HybridGuardrail {
     }
 
     /// Validate content using the configured execution and aggregation strategy
-    async fn validate_with_strategy(
-        &self,
-        content: &str,
-        is_input: bool,
-    ) -> Result<GuardrailResult, CliError> {
+    async fn validate_with_strategy(&self, content: &str) -> Result<GuardrailResult, CliError> {
         match self.execution {
-            ExecutionMode::Sequential => self.validate_sequential(content, is_input).await,
-            ExecutionMode::Parallel => self.validate_parallel(content, is_input).await,
+            ExecutionMode::Sequential => self.validate_sequential(content).await,
+            ExecutionMode::Parallel => self.validate_parallel(content).await,
         }
     }
 
     /// Sequential execution (can short-circuit based on aggregation mode)
-    async fn validate_sequential(
-        &self,
-        content: &str,
-        is_input: bool,
-    ) -> Result<GuardrailResult, CliError> {
+    async fn validate_sequential(&self, content: &str) -> Result<GuardrailResult, CliError> {
         let mut results = Vec::new();
 
         for provider in &self.providers {
-            let result = if is_input {
-                provider.validate_input(content).await?
-            } else {
-                provider.validate_output(content).await?
-            };
+            let result = provider.validate(content).await?;
 
             let can_short_circuit = match self.aggregation {
                 // AllMustPass: short-circuit on first failure
@@ -124,11 +112,7 @@ impl HybridGuardrail {
     }
 
     /// Parallel execution (all providers run simultaneously)
-    async fn validate_parallel(
-        &self,
-        content: &str,
-        is_input: bool,
-    ) -> Result<GuardrailResult, CliError> {
+    async fn validate_parallel(&self, content: &str) -> Result<GuardrailResult, CliError> {
         // Handle empty providers gracefully
         if self.providers.is_empty() {
             return Ok(self.aggregate_results(vec![]));
@@ -138,13 +122,7 @@ impl HybridGuardrail {
         let futures: Vec<_> = self
             .providers
             .iter()
-            .map(|provider| {
-                if is_input {
-                    provider.validate_input(content)
-                } else {
-                    provider.validate_output(content)
-                }
-            })
+            .map(|provider| provider.validate(content))
             .collect();
 
         // Wait for all to complete
@@ -177,12 +155,8 @@ impl HybridGuardrail {
 
 #[async_trait]
 impl GuardrailProvider for HybridGuardrail {
-    async fn validate_input(&self, content: &str) -> Result<GuardrailResult, CliError> {
-        self.validate_with_strategy(content, true).await
-    }
-
-    async fn validate_output(&self, content: &str) -> Result<GuardrailResult, CliError> {
-        self.validate_with_strategy(content, false).await
+    async fn validate(&self, content: &str) -> Result<GuardrailResult, CliError> {
+        self.validate_with_strategy(content).await
     }
 
     fn name(&self) -> &str {
@@ -194,15 +168,16 @@ impl GuardrailProvider for HybridGuardrail {
 mod tests {
     use super::*;
     use crate::guardrails::{
-        input::{InputGuardrail, InputGuardrailConfig},
+        config::RegexGuardrailConfig,
         provider::{Severity, Violation},
+        RegexGuardrail,
     };
 
     #[tokio::test]
     async fn test_sequential_all_must_pass() {
         let providers: Vec<Box<dyn GuardrailProvider>> = vec![
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
         ];
 
         let composite = HybridGuardrail::new(
@@ -212,15 +187,19 @@ mod tests {
         );
 
         // Clean input should pass all providers
-        let result = composite.validate_input("Clean input").await.unwrap();
+        let result = composite.validate("Clean input").await.unwrap();
         assert!(result.passed);
     }
 
     #[tokio::test]
     async fn test_sequential_all_must_pass_short_circuit() {
         let providers: Vec<Box<dyn GuardrailProvider>> = vec![
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig {
+                max_length_bytes: 10,
+                patterns_file: None,
+                severity_threshold: Severity::Medium,
+            })),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
         ];
 
         let composite = HybridGuardrail::new(
@@ -229,8 +208,11 @@ mod tests {
             AggregationMode::AllMustPass,
         );
 
-        // PII should fail first provider and short-circuit
-        let result = composite.validate_input("SSN: 123-45-6789").await.unwrap();
+        // Long input should fail first provider and short-circuit
+        let result = composite
+            .validate("This is a long input that exceeds 10 bytes")
+            .await
+            .unwrap();
         assert!(!result.passed);
         assert!(!result.violations.is_empty());
     }
@@ -238,8 +220,8 @@ mod tests {
     #[tokio::test]
     async fn test_parallel_all_must_pass() {
         let providers: Vec<Box<dyn GuardrailProvider>> = vec![
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
         ];
 
         let composite = HybridGuardrail::new(
@@ -249,15 +231,23 @@ mod tests {
         );
 
         // Clean input should pass all providers
-        let result = composite.validate_input("Clean input").await.unwrap();
+        let result = composite.validate("Clean input").await.unwrap();
         assert!(result.passed);
     }
 
     #[tokio::test]
     async fn test_parallel_all_must_pass_failure() {
         let providers: Vec<Box<dyn GuardrailProvider>> = vec![
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig {
+                max_length_bytes: 10,
+                patterns_file: None,
+                severity_threshold: Severity::Medium,
+            })),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig {
+                max_length_bytes: 10,
+                patterns_file: None,
+                severity_threshold: Severity::Medium,
+            })),
         ];
 
         let composite = HybridGuardrail::new(
@@ -266,8 +256,11 @@ mod tests {
             AggregationMode::AllMustPass,
         );
 
-        // PII should fail both providers
-        let result = composite.validate_input("SSN: 123-45-6789").await.unwrap();
+        // Long input should fail both providers (they have 10 byte limit)
+        let result = composite
+            .validate("This is a long input that exceeds 10 bytes")
+            .await
+            .unwrap();
         assert!(!result.passed);
         // Violations from both providers should be aggregated
         assert!(!result.violations.is_empty());
@@ -275,8 +268,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_aggregate_all_must_pass() {
-        let providers: Vec<Box<dyn GuardrailProvider>> = vec![Box::new(InputGuardrail::new(
-            InputGuardrailConfig::default(),
+        let providers: Vec<Box<dyn GuardrailProvider>> = vec![Box::new(RegexGuardrail::new(
+            RegexGuardrailConfig::default(),
         ))];
 
         let composite = HybridGuardrail::new(
@@ -308,8 +301,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_aggregate_all_must_pass_one_fails() {
-        let providers: Vec<Box<dyn GuardrailProvider>> = vec![Box::new(InputGuardrail::new(
-            InputGuardrailConfig::default(),
+        let providers: Vec<Box<dyn GuardrailProvider>> = vec![Box::new(RegexGuardrail::new(
+            RegexGuardrailConfig::default(),
         ))];
 
         let composite = HybridGuardrail::new(
@@ -347,8 +340,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_aggregate_any_can_pass() {
-        let providers: Vec<Box<dyn GuardrailProvider>> = vec![Box::new(InputGuardrail::new(
-            InputGuardrailConfig::default(),
+        let providers: Vec<Box<dyn GuardrailProvider>> = vec![Box::new(RegexGuardrail::new(
+            RegexGuardrailConfig::default(),
         ))];
 
         let composite = HybridGuardrail::new(
@@ -387,9 +380,9 @@ mod tests {
     #[tokio::test]
     async fn test_three_providers_composite() {
         let providers: Vec<Box<dyn GuardrailProvider>> = vec![
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
-            Box::new(InputGuardrail::new(InputGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
+            Box::new(RegexGuardrail::new(RegexGuardrailConfig::default())),
         ];
 
         let composite = HybridGuardrail::new(
@@ -399,7 +392,7 @@ mod tests {
         );
 
         // Clean input should pass all three providers
-        let result = composite.validate_input("Clean input").await.unwrap();
+        let result = composite.validate("Clean input").await.unwrap();
         assert!(result.passed);
     }
 
@@ -414,7 +407,7 @@ mod tests {
         );
 
         // Empty providers should default to "safe"
-        let result = composite.validate_input("Any input").await.unwrap();
+        let result = composite.validate("Any input").await.unwrap();
         assert!(result.passed);
     }
 }

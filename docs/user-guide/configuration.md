@@ -101,7 +101,7 @@ response_format_schema = "schemas/product.json"
 response_format_schema_strict = true
 ```
 
-### With Input Guardrails (Pattern-Based)
+### With Input Guardrails (Regex-Based)
 
 ```toml
 api_url = "http://localhost:11434/v1/chat/completions"
@@ -109,12 +109,17 @@ model = "llama3"
 temperature = 0.7
 
 [guardrails.input]
-type = "patterns"
+type = "regex"
 max_length_bytes = 1048576  # 1MB
+patterns_file = "patterns/input.txt"  # Optional: custom patterns
+severity_threshold = "medium"  # Violations below this become warnings
+```
 
-[guardrails.input.patterns]
-detect_pii = true
-detect_prompt_injection = true
+Pattern file format (`patterns/input.txt`):
+```
+CRITICAL | Social Security Number | \b\d{3}-\d{2}-\d{4}\b
+HIGH | Credit Card Number | \b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b
+MEDIUM | Email Address | \b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b
 ```
 
 ### With Output Guardrails
@@ -124,11 +129,17 @@ api_url = "http://localhost:11434/v1/chat/completions"
 model = "llama3"
 
 [guardrails.output]
-type = "patterns"
+type = "regex"
+max_length_bytes = 2097152  # 2MB
+patterns_file = "patterns/output.txt"
+severity_threshold = "high"
+```
 
-[guardrails.output.patterns]
-detect_toxic = true
-min_quality_score = 0.7
+Pattern file format (`patterns/output.txt`):
+```
+CRITICAL | Dangerous instructions | bomb|weapon|hack
+HIGH | Toxic language | offensive|harmful
+MEDIUM | Inappropriate content | controversial
 ```
 
 ### With LLM-Based Guardrails (Llama Guard)
@@ -159,25 +170,24 @@ api_url = "http://localhost:11434/v1/chat/completions"
 model = "llama3"
 
 [guardrails.input]
-type = "hybrid"
+type = "composite"
+execution = "sequential"     # or "parallel"
+aggregation = "all_must_pass"  # or "any_can_pass"
 
-[guardrails.input.hybrid]
-execution_mode = "sequential"  # or "parallel"
-aggregation_mode = "all"       # or "any", "majority"
-
-# Layer 1: Fast pattern checks
-[[guardrails.input.hybrid.providers]]
-type = "patterns"
-[guardrails.input.hybrid.providers.patterns]
-detect_pii = true
-detect_prompt_injection = true
+# Layer 1: Fast regex checks
+[[guardrails.input.providers]]
+type = "regex"
+max_length_bytes = 1048576
+patterns_file = "patterns/input.txt"
+severity_threshold = "medium"
 
 # Layer 2: LLM-based validation
-[[guardrails.input.hybrid.providers]]
+[[guardrails.input.providers]]
 type = "llama_guard"
-[guardrails.input.hybrid.providers.llama_guard]
 api_url = "http://localhost:11434/v1/chat/completions"
-model = "llama-guard-3"
+model = "llama-guard3:8b"
+timeout_secs = 30
+enabled_categories = ["S1", "S2", "S3", "S4", "S5"]
 ```
 
 See [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for detailed configuration.
@@ -206,15 +216,13 @@ See [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for d
   "model": "llama3",
   "guardrails": {
     "input": {
-      "type": "patterns",
+      "type": "regex",
       "max_length_bytes": 1048576,
-      "patterns": {
-        "detect_pii": true,
-        "detect_prompt_injection": true
-      }
+      "patterns_file": "patterns/input.txt",
+      "severity_threshold": "medium"
     },
     "output": {
-      "type": "patterns",
+      "type": "regex",
       "patterns": {
         "detect_toxic": true
       }
@@ -249,6 +257,48 @@ See [Hybrid Guardrails]({{ site.baseurl }}{% link guardrails/hybrid.md %}) for d
 
 See [Guardrails Configuration]({{ site.baseurl }}{% link guardrails/index.md %}) for complete details.
 
+#### Unified Guardrails Configuration
+
+You can apply the same guardrail configuration to both input and output using the flattened format:
+
+```toml
+# This applies to BOTH input and output
+[guardrails]
+type = "regex"
+max_length_bytes = 1048576
+patterns_file = "patterns/common.txt"
+severity_threshold = "medium"
+```
+
+This is equivalent to:
+
+```toml
+[guardrails.input]
+type = "regex"
+max_length_bytes = 1048576
+patterns_file = "patterns/common.txt"
+severity_threshold = "medium"
+
+[guardrails.output]
+type = "regex"
+max_length_bytes = 1048576
+patterns_file = "patterns/common.txt"
+severity_threshold = "medium"
+```
+
+**Override Pattern**: Explicit `input` or `output` fields take precedence over the flattened format:
+
+```toml
+# Base config for both
+[guardrails]
+type = "regex"
+max_length_bytes = 1048576
+
+# Override only for output
+[guardrails.output]
+max_length_bytes = 2097152  # 2MB for longer responses
+```
+
 ## CLI-Only Fields
 
 These fields **cannot** be set in config files and must be provided via CLI:
@@ -276,22 +326,31 @@ fortified-llm-client -c config.toml --user-text "Hello"
 fortified-llm-client -c config.toml --temperature 1.0 --user-text "Be creative"
 ```
 
-### Example 2: Library with Config
+### Example 2: Library with Guardrails
 
 ```rust
-use fortified_llm_client::{evaluate_with_guardrails, EvaluationConfig};
+use fortified_llm_client::{
+    evaluate, ConfigBuilder,
+    guardrails::{GuardrailProviderConfig, RegexGuardrailConfig, Severity},
+};
+use std::path::PathBuf;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = EvaluationConfig {
-        api_url: "http://localhost:11434/v1/chat/completions".to_string(),
-        model: "llama3".to_string(),
-        user_prompt: "Your prompt".to_string(),
-        ..Default::default()
-    };
+    let config = ConfigBuilder::new()
+        .api_url("http://localhost:11434/v1/chat/completions")
+        .model("llama3")
+        .user_prompt("Your prompt")
+        .input_guardrails(GuardrailProviderConfig::Regex(
+            RegexGuardrailConfig {
+                max_length_bytes: 1048576,
+                patterns_file: Some(PathBuf::from("patterns/input.txt")),
+                severity_threshold: Severity::Medium,
+            }
+        ))
+        .build()?;
 
-    // Load guardrails from config file
-    let result = evaluate_with_guardrails(config, "config.toml").await?;
+    let result = evaluate(config).await?;
     println!("{}", result.content);
 
     Ok(())

@@ -171,10 +171,10 @@ impl LlamaPromptGuardProvider {
 
 #[async_trait]
 impl GuardrailProvider for LlamaPromptGuardProvider {
-    async fn validate_input(&self, content: &str) -> Result<GuardrailResult, CliError> {
+    async fn validate(&self, content: &str) -> Result<GuardrailResult, CliError> {
         // Truncate if exceeds 512 tokens (~2048 chars)
         let truncated = if content.len() > 2048 {
-            log::warn!("Input exceeds 512 tokens, truncating for Prompt Guard validation");
+            log::warn!("Content exceeds 512 tokens, truncating for Prompt Guard validation");
             &content[..2048]
         } else {
             content
@@ -196,11 +196,6 @@ impl GuardrailProvider for LlamaPromptGuardProvider {
             .await?;
 
         self.parse_response(&response)
-    }
-
-    async fn validate_output(&self, content: &str) -> Result<GuardrailResult, CliError> {
-        // Same logic as validate_input (can detect injection in outputs too)
-        self.validate_input(content).await
     }
 
     fn name(&self) -> &str {

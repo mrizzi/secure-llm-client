@@ -424,10 +424,21 @@ async fn run(args: Args) -> Result<CliOutput, CliError> {
     if let Some(guardrail_config) = configure_guardrails(
         merged_args.enable_input_validation,
         merged_args.max_input_length,
-        merged_args.max_input_tokens,
         file_config.as_ref(),
     ) {
         builder = builder.input_guardrails(guardrail_config);
+    }
+
+    // Handle output guardrails from config file
+    if let Some(guardrail_config) = file_config
+        .as_ref()
+        .and_then(|fc| fc.guardrails.as_ref())
+        .and_then(|g| {
+            // Prefer explicit output field, fallback to flattened provider field
+            g.output.clone().or_else(|| g.provider.clone())
+        })
+    {
+        builder = builder.output_guardrails(guardrail_config);
     }
 
     // Handle system prompt (file > text > config file)

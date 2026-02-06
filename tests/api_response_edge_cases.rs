@@ -22,6 +22,7 @@ async fn create_test_config(api_url: String) -> EvaluationConfig {
         response_format: None,
         pdf_input: None,
         input_guardrails: None,
+        output_guardrails: None,
         system_prompt_file: None,
         user_prompt_file: None,
     }

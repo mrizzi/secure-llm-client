@@ -5,8 +5,8 @@
 //! config fields are added but not included in metadata.
 
 use fortified_llm_client::{
-    config_builder::ConfigBuilder, evaluate, evaluate_with_guardrails, GuardrailProviderConfig,
-    OutputGuardrailProviderConfig, Provider, ResponseFormat,
+    config_builder::ConfigBuilder, evaluate, guardrails::config::RegexGuardrailConfig,
+    GuardrailProviderConfig, Provider, ResponseFormat, Severity,
 };
 use mockito::Server;
 
@@ -113,12 +113,11 @@ async fn test_metadata_with_input_guardrails() {
         .create_async()
         .await;
 
-    let input_guardrails = GuardrailProviderConfig::Regex {
+    let input_guardrails = GuardrailProviderConfig::Regex(RegexGuardrailConfig {
         max_length_bytes: 100000,
-        max_tokens_estimated: 50000,
-        check_pii: true,
-        check_content_filters: true,
-    };
+        patterns_file: None,
+        severity_threshold: Severity::Medium,
+    });
 
     let config = ConfigBuilder::new()
         .api_url(server.url() + "/v1/chat/completions")
@@ -161,14 +160,11 @@ async fn test_metadata_with_output_guardrails() {
         .create_async()
         .await;
 
-    let output_guardrails = OutputGuardrailProviderConfig::Regex {
+    let output_guardrails = GuardrailProviderConfig::Regex(RegexGuardrailConfig {
         max_length_bytes: 100000,
-        check_safety: true,
-        check_hallucination: true,
-        check_format: true,
-        min_quality_score: 5.0,
-        custom_patterns_file: None,
-    };
+        patterns_file: None,
+        severity_threshold: Severity::Medium,
+    });
 
     let config = ConfigBuilder::new()
         .api_url(server.url() + "/v1/chat/completions")
@@ -176,12 +172,11 @@ async fn test_metadata_with_output_guardrails() {
         .system_prompt("System")
         .user_prompt("User")
         .provider(Provider::OpenAI)
+        .output_guardrails(output_guardrails)
         .build()
         .unwrap();
 
-    let result = evaluate_with_guardrails(config, Some(output_guardrails))
-        .await
-        .unwrap();
+    let result = evaluate(config).await.unwrap();
 
     mock.assert_async().await;
 

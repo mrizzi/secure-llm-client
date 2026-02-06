@@ -2,11 +2,41 @@ use crate::{
     error::CliError,
     guardrails::{
         gpt_oss_safeguard::GptOssSafeguardConfig,
-        input::InputGuardrailConfig,
         llama_guard::{LlamaGuardCategory, LlamaGuardConfig},
+        provider::Severity,
     },
 };
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+
+/// Regex guardrail configuration (unified for both input and output)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RegexGuardrailConfig {
+    /// Maximum content length in bytes
+    pub max_length_bytes: usize,
+
+    /// Optional user-provided patterns file
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub patterns_file: Option<PathBuf>,
+
+    /// Minimum severity to report (violations below this become warnings)
+    #[serde(default = "default_severity_threshold")]
+    pub severity_threshold: Severity,
+}
+
+fn default_severity_threshold() -> Severity {
+    Severity::Medium
+}
+
+impl Default for RegexGuardrailConfig {
+    fn default() -> Self {
+        Self {
+            max_length_bytes: 1048576, // 1MB
+            patterns_file: None,
+            severity_threshold: Severity::Medium,
+        }
+    }
+}
 
 /// Default function for LlamaGuard enabled_categories (all categories enabled)
 fn default_llama_guard_categories() -> Vec<LlamaGuardCategory> {
@@ -80,21 +110,28 @@ pub enum AggregationMode {
 /// Top-level guardrail configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuardrailConfig {
+    /// Input guardrails configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input: Option<GuardrailProviderConfig>,
+
+    /// Output guardrails configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output: Option<GuardrailProviderConfig>,
+
+    /// Flattened provider field for unified guardrail configuration
+    /// When explicit input/output fields are not specified, this applies to BOTH
+    /// input and output guardrails. Explicit fields take precedence.
     #[serde(flatten)]
-    pub provider: GuardrailProviderConfig,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider: Option<GuardrailProviderConfig>,
 }
 
-/// Provider-specific configuration (tagged enum)
+/// Unified provider-specific configuration (works for both input and output)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum GuardrailProviderConfig {
-    /// Regex-based guardrail (fast, deterministic)
-    Regex {
-        max_length_bytes: usize,
-        max_tokens_estimated: usize,
-        check_pii: bool,
-        check_content_filters: bool,
-    },
+    /// Regex-based guardrail (unified for input and output)
+    Regex(RegexGuardrailConfig),
 
     /// Llama Guard 3 (MLCommons taxonomy, fixed categories)
     LlamaGuard {
@@ -121,7 +158,8 @@ pub enum GuardrailProviderConfig {
         api_key_name: Option<String>,
     },
 
-    /// Llama Prompt Guard 2 (prompt injection detection)
+    /// Llama Prompt Guard 2 (prompt injection detection, input-only)
+    /// When used for output guardrails, this is gracefully ignored with a warning
     LlamaPromptGuard {
         api_url: String,
         model: String,
@@ -144,135 +182,16 @@ pub enum GuardrailProviderConfig {
 
 impl Default for GuardrailProviderConfig {
     fn default() -> Self {
-        // Default: Composite (regex + llama-guard, parallel, all must pass)
-        Self::Composite {
-            providers: vec![
-                Self::Regex {
-                    max_length_bytes: 1_048_576, // 1MB
-                    max_tokens_estimated: 200_000,
-                    check_pii: true,
-                    check_content_filters: true,
-                },
-                Self::LlamaGuard {
-                    api_url: "http://localhost:11434/api/generate".to_string(),
-                    model: "llama-guard3:8b".to_string(),
-                    timeout_secs: 30,
-                    enabled_categories: LlamaGuardCategory::all(),
-                    api_key: None,
-                    api_key_name: None,
-                },
-            ],
-            execution: ExecutionMode::default(),
-            aggregation: AggregationMode::default(),
-        }
-    }
-}
-
-/// Output guardrail provider configuration (tagged enum)
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum OutputGuardrailProviderConfig {
-    /// Regex-based output validation (fast, pattern matching)
-    Regex {
-        max_length_bytes: usize,
-        check_safety: bool,
-        check_hallucination: bool,
-        check_format: bool,
-        min_quality_score: f32,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        custom_patterns_file: Option<std::path::PathBuf>,
-    },
-
-    /// Llama Guard 3 for output validation
-    LlamaGuard {
-        api_url: String,
-        model: String,
-        timeout_secs: u64,
-        #[serde(default = "default_llama_guard_categories")]
-        enabled_categories: Vec<LlamaGuardCategory>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        api_key: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        api_key_name: Option<String>,
-    },
-
-    /// GPT-OSS-Safeguard for output validation
-    GptOssSafeguard {
-        api_url: String,
-        model: String,
-        policy: String,
-        timeout_secs: u64,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        api_key: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        api_key_name: Option<String>,
-    },
-
-    /// Composite output guardrail (combines multiple providers)
-    Composite {
-        providers: Vec<OutputGuardrailProviderConfig>,
-        execution: ExecutionMode,
-        aggregation: AggregationMode,
-    },
-}
-
-impl Default for OutputGuardrailProviderConfig {
-    fn default() -> Self {
-        use crate::constants::{guardrails, output_limits};
-
-        // Default: Regex with safety and hallucination checks
-        Self::Regex {
-            max_length_bytes: output_limits::MAX_OUTPUT_BYTES,
-            check_safety: true,
-            check_hallucination: true,
-            check_format: true,
-            min_quality_score: guardrails::DEFAULT_MIN_QUALITY_SCORE,
-            custom_patterns_file: None,
-        }
-    }
-}
-
-impl OutputGuardrailProviderConfig {
-    /// Convert Regex variant to legacy OutputGuardrailConfig
-    pub fn to_output_config(&self) -> Option<crate::guardrails::output::OutputGuardrailConfig> {
-        match self {
-            Self::Regex {
-                max_length_bytes,
-                check_safety,
-                check_hallucination,
-                check_format,
-                min_quality_score,
-                custom_patterns_file,
-            } => Some(crate::guardrails::output::OutputGuardrailConfig {
-                max_length_bytes: *max_length_bytes,
-                check_safety: *check_safety,
-                check_hallucination: *check_hallucination,
-                check_format: *check_format,
-                min_quality_score: *min_quality_score,
-                custom_patterns_file: custom_patterns_file.clone(),
-            }),
-            _ => None,
-        }
+        // Default: Simple regex guardrail with default settings
+        Self::Regex(RegexGuardrailConfig::default())
     }
 }
 
 impl GuardrailProviderConfig {
-    /// Convert to InputGuardrailConfig (if this is a Regex config)
-    pub fn to_input_config(&self) -> Option<InputGuardrailConfig> {
+    /// Get the RegexGuardrailConfig (if this is a Regex variant)
+    pub fn as_regex_config(&self) -> Option<&RegexGuardrailConfig> {
         match self {
-            Self::Regex {
-                max_length_bytes,
-                max_tokens_estimated,
-                check_pii,
-                check_content_filters,
-            } => Some(InputGuardrailConfig {
-                max_length_bytes: *max_length_bytes,
-                max_tokens_estimated: *max_tokens_estimated,
-                check_pii: *check_pii,
-                check_content_filters: *check_content_filters,
-                severity_threshold: crate::guardrails::provider::Severity::Critical,
-                custom_patterns_file: None,
-            }),
+            Self::Regex(config) => Some(config),
             _ => None,
         }
     }
@@ -320,45 +239,18 @@ impl GuardrailProviderConfig {
     }
 }
 
-// Auto-migration from old InputGuardrailConfig
-impl From<InputGuardrailConfig> for GuardrailConfig {
-    fn from(old: InputGuardrailConfig) -> Self {
-        Self {
-            provider: GuardrailProviderConfig::Regex {
-                max_length_bytes: old.max_length_bytes,
-                max_tokens_estimated: old.max_tokens_estimated,
-                check_pii: old.check_pii,
-                check_content_filters: old.check_content_filters,
-            },
-        }
-    }
-}
-
 /// Factory function to create GuardrailProvider from configuration
 pub fn create_guardrail_provider(
     config: &GuardrailProviderConfig,
 ) -> Result<Box<dyn crate::guardrails::provider::GuardrailProvider>, crate::error::CliError> {
     use crate::guardrails::{
-        gpt_oss_safeguard::GptOssSafeguardProvider, hybrid::HybridGuardrail, input::InputGuardrail,
-        llama_guard::LlamaGuardProvider, provider::Severity,
+        gpt_oss_safeguard::GptOssSafeguardProvider, hybrid::HybridGuardrail,
+        llama_guard::LlamaGuardProvider, regex::RegexGuardrail,
     };
 
     match config {
-        GuardrailProviderConfig::Regex {
-            max_length_bytes,
-            max_tokens_estimated,
-            check_pii,
-            check_content_filters,
-        } => {
-            let input_config = InputGuardrailConfig {
-                max_length_bytes: *max_length_bytes,
-                max_tokens_estimated: *max_tokens_estimated,
-                check_pii: *check_pii,
-                check_content_filters: *check_content_filters,
-                severity_threshold: Severity::Critical,
-                custom_patterns_file: None,
-            };
-            Ok(Box::new(InputGuardrail::new(input_config)))
+        GuardrailProviderConfig::Regex(regex_config) => {
+            Ok(Box::new(RegexGuardrail::new(regex_config.clone())))
         }
 
         GuardrailProviderConfig::LlamaGuard {
@@ -441,95 +333,6 @@ pub fn create_guardrail_provider(
         }
     }
 }
-
-/// Create output guardrail provider from configuration
-pub fn create_output_guardrail_provider(
-    config: &OutputGuardrailProviderConfig,
-) -> Result<Box<dyn crate::guardrails::provider::GuardrailProvider>, crate::error::CliError> {
-    use crate::guardrails::{
-        gpt_oss_safeguard::GptOssSafeguardProvider, hybrid::HybridGuardrail,
-        llama_guard::LlamaGuardProvider, output::OutputGuardrail,
-    };
-
-    match config {
-        OutputGuardrailProviderConfig::Regex {
-            max_length_bytes,
-            check_safety,
-            check_hallucination,
-            check_format,
-            min_quality_score,
-            custom_patterns_file,
-        } => {
-            let output_config = crate::guardrails::output::OutputGuardrailConfig {
-                max_length_bytes: *max_length_bytes,
-                check_safety: *check_safety,
-                check_hallucination: *check_hallucination,
-                check_format: *check_format,
-                min_quality_score: *min_quality_score,
-                custom_patterns_file: custom_patterns_file.clone(),
-            };
-            Ok(Box::new(OutputGuardrail::new(output_config)))
-        }
-
-        OutputGuardrailProviderConfig::LlamaGuard {
-            api_url,
-            model,
-            timeout_secs,
-            enabled_categories,
-            api_key,
-            api_key_name,
-        } => {
-            let resolved_api_key = resolve_api_key(api_key, api_key_name, "LlamaGuard (output)")?;
-            let llama_config = LlamaGuardConfig {
-                api_url: api_url.clone(),
-                model: model.clone(),
-                enabled_categories: enabled_categories.clone(),
-                timeout_secs: *timeout_secs,
-                api_key: resolved_api_key,
-            };
-            Ok(Box::new(LlamaGuardProvider::new(llama_config)))
-        }
-
-        OutputGuardrailProviderConfig::GptOssSafeguard {
-            api_url,
-            model,
-            policy,
-            timeout_secs,
-            api_key,
-            api_key_name,
-        } => {
-            let resolved_api_key =
-                resolve_api_key(api_key, api_key_name, "GptOssSafeguard (output)")?;
-            let gpt_oss_config = GptOssSafeguardConfig {
-                api_url: api_url.clone(),
-                model: model.clone(),
-                policy: policy.clone(),
-                timeout_secs: *timeout_secs,
-                api_key: resolved_api_key,
-            };
-            Ok(Box::new(GptOssSafeguardProvider::new(gpt_oss_config)))
-        }
-
-        OutputGuardrailProviderConfig::Composite {
-            providers,
-            execution,
-            aggregation,
-        } => {
-            // Recursively create provider instances
-            let provider_instances = providers
-                .iter()
-                .map(create_output_guardrail_provider)
-                .collect::<Result<Vec<_>, crate::error::CliError>>()?;
-
-            Ok(Box::new(HybridGuardrail::new(
-                provider_instances,
-                *execution,
-                *aggregation,
-            )))
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -548,33 +351,26 @@ mod tests {
     fn test_guardrail_config_default() {
         let config = GuardrailProviderConfig::default();
         match config {
-            GuardrailProviderConfig::Composite {
-                execution,
-                aggregation,
-                providers,
-            } => {
-                assert_eq!(execution, ExecutionMode::Parallel);
-                assert_eq!(aggregation, AggregationMode::AllMustPass);
-                assert_eq!(providers.len(), 2); // Regex + LlamaGuard
+            GuardrailProviderConfig::Regex(regex_config) => {
+                assert_eq!(regex_config.max_length_bytes, 1048576);
+                assert_eq!(regex_config.severity_threshold, Severity::Medium);
+                assert!(regex_config.patterns_file.is_none());
             }
-            _ => panic!("Default should be Composite"),
+            _ => panic!("Default should be Regex"),
         }
     }
 
     #[test]
-    fn test_to_input_config() {
-        let config = GuardrailProviderConfig::Regex {
+    fn test_as_regex_config() {
+        let config = GuardrailProviderConfig::Regex(RegexGuardrailConfig {
             max_length_bytes: 1024,
-            max_tokens_estimated: 500,
-            check_pii: true,
-            check_content_filters: false,
-        };
+            patterns_file: None,
+            severity_threshold: Severity::High,
+        });
 
-        let input_config = config.to_input_config().unwrap();
-        assert_eq!(input_config.max_length_bytes, 1024);
-        assert_eq!(input_config.max_tokens_estimated, 500);
-        assert!(input_config.check_pii);
-        assert!(!input_config.check_content_filters);
+        let regex_config = config.as_regex_config().unwrap();
+        assert_eq!(regex_config.max_length_bytes, 1024);
+        assert_eq!(regex_config.severity_threshold, Severity::High);
     }
 
     #[test]
@@ -598,12 +394,11 @@ mod tests {
 
     #[test]
     fn test_serde_regex_config() {
-        let config = GuardrailProviderConfig::Regex {
+        let config = GuardrailProviderConfig::Regex(RegexGuardrailConfig {
             max_length_bytes: 1024,
-            max_tokens_estimated: 500,
-            check_pii: true,
-            check_content_filters: true,
-        };
+            patterns_file: None,
+            severity_threshold: Severity::High,
+        });
 
         let json = serde_json::to_string(&config).unwrap();
         assert!(json.contains("\"type\":\"regex\""));
@@ -611,10 +406,8 @@ mod tests {
 
         let deserialized: GuardrailProviderConfig = serde_json::from_str(&json).unwrap();
         match deserialized {
-            GuardrailProviderConfig::Regex {
-                max_length_bytes, ..
-            } => {
-                assert_eq!(max_length_bytes, 1024);
+            GuardrailProviderConfig::Regex(regex_config) => {
+                assert_eq!(regex_config.max_length_bytes, 1024);
             }
             _ => panic!("Should deserialize to Regex"),
         }
@@ -640,12 +433,11 @@ mod tests {
     fn test_serde_composite_config() {
         let config = GuardrailProviderConfig::Composite {
             providers: vec![
-                GuardrailProviderConfig::Regex {
+                GuardrailProviderConfig::Regex(RegexGuardrailConfig {
                     max_length_bytes: 1024,
-                    max_tokens_estimated: 500,
-                    check_pii: true,
-                    check_content_filters: true,
-                },
+                    patterns_file: None,
+                    severity_threshold: Severity::Medium,
+                }),
                 GuardrailProviderConfig::LlamaGuard {
                     api_url: "http://localhost:11434".to_string(),
                     model: "llama-guard3:8b".to_string(),

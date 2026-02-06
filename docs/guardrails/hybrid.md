@@ -21,25 +21,24 @@ Run providers one by one, stop on first failure:
 
 ```toml
 [guardrails.input]
-type = "hybrid"
-
-[guardrails.input.hybrid]
-execution_mode = "sequential"
-aggregation_mode = "all"
+type = "composite"
+execution = "sequential"
+aggregation = "all_must_pass"
 
 # Fast check first
-[[guardrails.input.hybrid.providers]]
-type = "patterns"
-[guardrails.input.hybrid.providers.patterns]
-detect_pii = true
-detect_prompt_injection = true
+[[guardrails.input.providers]]
+type = "regex"
+max_length_bytes = 1048576
+patterns_file = "patterns/input.txt"
+severity_threshold = "medium"
 
-# Expensive check only if patterns pass
-[[guardrails.input.hybrid.providers]]
+# Expensive check only if regex passes
+[[guardrails.input.providers]]
 type = "llama_guard"
-[guardrails.input.hybrid.providers.llama_guard]
 api_url = "http://localhost:11434/v1/chat/completions"
-model = "llama-guard-3"
+model = "llama-guard3:8b"
+timeout_secs = 30
+enabled_categories = ["S1", "S2", "S3", "S4", "S5"]
 ```
 
 **Benefits**: Faster (stops early), lower cost
@@ -49,9 +48,10 @@ model = "llama-guard-3"
 Run all providers concurrently:
 
 ```toml
-[guardrails.input.hybrid]
-execution_mode = "parallel"
-aggregation_mode = "majority"
+[guardrails.input]
+type = "composite"
+execution = "parallel"
+aggregation = "all_must_pass"
 
 [[guardrails.input.hybrid.providers]]
 type = "patterns"
@@ -72,7 +72,7 @@ type = "gpt_oss_safeguard"
 Pass only if ALL providers pass:
 
 ```toml
-aggregation_mode = "all"
+aggregation = "all_must_pass"
 ```
 
 **Use case**: High-security environments
@@ -82,20 +82,13 @@ aggregation_mode = "all"
 Pass if ANY provider passes:
 
 ```toml
-aggregation_mode = "any"
+aggregation = "any_can_pass"
 ```
 
 **Use case**: Development, avoid false positives
 
-### Majority (Balanced)
-
-Pass if majority passes:
-
-```toml
-aggregation_mode = "majority"
-```
-
-**Use case**: Production balance between security and usability
+{: .note }
+> **Majority mode** is not currently implemented. Use `all_must_pass` (conservative) or `any_can_pass` (permissive).
 
 ## Complete Example
 
@@ -103,33 +96,33 @@ Defense-in-depth with three layers:
 
 ```toml
 [guardrails.input]
-type = "hybrid"
+type = "composite"
 
-[guardrails.input.hybrid]
-execution_mode = "sequential"
-aggregation_mode = "all"
+[guardrails.input]
+type = "composite"
+execution = "sequential"
+aggregation = "all_must_pass"
 
-# Layer 1: Fast patterns (< 10ms)
-[[guardrails.input.hybrid.providers]]
-type = "patterns"
-[guardrails.input.hybrid.providers.patterns]
-detect_pii = true
-detect_prompt_injection = true
+# Layer 1: Fast regex checks (< 10ms)
+[[guardrails.input.providers]]
+type = "regex"
 max_length_bytes = 1048576
+patterns_file = "patterns/input.txt"
+severity_threshold = "medium"
 
-# Layer 2: Prompt injection (1-3s)
-[[guardrails.input.hybrid.providers]]
+# Layer 2: Prompt injection detection (1-3s)
+[[guardrails.input.providers]]
 type = "llama_prompt_guard"
-[guardrails.input.hybrid.providers.llama_prompt_guard]
 api_url = "http://localhost:11434/v1/chat/completions"
-model = "llama-guard-3"
+model = "prompt-guard-86m"
+timeout_secs = 30
 
 # Layer 3: Safety taxonomy (1-3s)
-[[guardrails.input.hybrid.providers]]
+[[guardrails.input.providers]]
 type = "llama_guard"
-[guardrails.input.hybrid.providers.llama_guard]
 api_url = "http://localhost:11434/v1/chat/completions"
-model = "llama-guard-3"
+model = "llama-guard3:8b"
+timeout_secs = 30
 enabled_categories = ["S1", "S2", "S3", "S4", "S10"]
 ```
 
@@ -137,20 +130,20 @@ enabled_categories = ["S1", "S2", "S3", "S4", "S10"]
 
 | Mode | Latency | Cost | Coverage |
 |------|---------|------|----------|
-| Sequential + all | Fast on failure | Low | Complete |
-| Sequential + majority | Medium | Medium | Complete |
-| Parallel + all | Consistent | High | Complete |
-| Parallel + any | Consistent | High | Partial |
+| Sequential + all_must_pass | Fast on failure | Low | Complete |
+| Sequential + any_can_pass | Fast on success | Low | Partial |
+| Parallel + all_must_pass | Consistent | High | Complete |
+| Parallel + any_can_pass | Consistent | High | Partial |
 
 ## Best Practices
 
 1. **Put fast checks first** in sequential mode
-2. **Use majority for production** - balances false positives
+2. **Use all_must_pass for production** - conservative, safer for security
 3. **Test all providers** independently before combining
 4. **Monitor latency** - parallel can hide slow providers
 
 ## See Also
 
-- [Input Patterns]({{ site.baseurl }}{% link guardrails/input-patterns.md %})
+- [Regex Guardrails]({{ site.baseurl }}{% link guardrails/regex.md %})
 - [Llama Guard]({{ site.baseurl }}{% link guardrails/llama-guard.md %})
 - [GPT OSS Safeguard]({{ site.baseurl }}{% link guardrails/gpt-oss-safeguard.md %})

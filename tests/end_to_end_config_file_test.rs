@@ -103,6 +103,7 @@ temperature = 0.0
         response_format: None,
         pdf_input: None,
         input_guardrails: None,
+        output_guardrails: None,
         system_prompt_file: None,
         user_prompt_file: None,
     };
@@ -183,6 +184,7 @@ async fn test_end_to_end_config_with_inline_text() {
         response_format: None,
         pdf_input: None,
         input_guardrails: None,
+        output_guardrails: None,
         system_prompt_file: None,
         user_prompt_file: None,
     };
@@ -318,6 +320,7 @@ temperature = 0.0
         response_format: None,
         pdf_input: None,
         input_guardrails: None,
+        output_guardrails: None,
         system_prompt_file: None,
         user_prompt_file: None,
     };

@@ -4,7 +4,9 @@
 //! loaded and executed during evaluation. This prevents regressions where
 //! config parsing succeeds but guardrails are silently ignored.
 
-use fortified_llm_client::{load_config_file, ConfigFileRequest, GuardrailProviderConfig};
+use fortified_llm_client::{
+    config_builder::ConfigBuilder, load_config_file, ConfigFileRequest, GuardrailProviderConfig,
+};
 use std::io::Write;
 
 /// Test that LlamaGuard input guardrails can be loaded from config file
@@ -34,8 +36,13 @@ timeout_secs = 60
 
     let guardrails = config.guardrails.unwrap();
 
-    // Verify it's LlamaGuard type
-    match &guardrails.provider {
+    // Verify it's LlamaGuard type (using flattened provider field)
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::LlamaGuard {
             api_url,
             model,
@@ -49,7 +56,7 @@ timeout_secs = 60
             // Verify default categories are applied
             assert_eq!(enabled_categories.len(), 14); // All 14 categories
         }
-        _ => panic!("Expected LlamaGuard variant, got {:?}", guardrails.provider),
+        _ => panic!("Expected LlamaGuard variant, got {:?}", provider_config),
     }
 }
 
@@ -82,7 +89,12 @@ timeout_secs = 30
     let guardrails = config.guardrails.unwrap();
 
     // Verify it's GptOssSafeguard type
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::GptOssSafeguard {
             api_url,
             model,
@@ -131,19 +143,16 @@ check_content_filters = true
     let guardrails = config.guardrails.unwrap();
 
     // Verify it's Regex type
-    match &guardrails.provider {
-        GuardrailProviderConfig::Regex {
-            max_length_bytes,
-            max_tokens_estimated,
-            check_pii,
-            check_content_filters,
-        } => {
-            assert_eq!(*max_length_bytes, 1048576);
-            assert_eq!(*max_tokens_estimated, 200000);
-            assert!(check_pii);
-            assert!(check_content_filters);
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
+        GuardrailProviderConfig::Regex(regex_config) => {
+            assert_eq!(regex_config.max_length_bytes, 1048576);
         }
-        _ => panic!("Expected Regex variant, got {:?}", guardrails.provider),
+        _ => panic!("Expected Regex variant, got {:?}", provider_config),
     }
 }
 
@@ -187,7 +196,12 @@ timeout_secs = 60
     let guardrails = config.guardrails.unwrap();
 
     // Verify it's Composite type
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::Composite {
             providers,
             execution,
@@ -212,7 +226,7 @@ timeout_secs = 60
                 _ => panic!("Expected second provider to be LlamaGuard"),
             }
         }
-        _ => panic!("Expected Composite variant, got {:?}", guardrails.provider),
+        _ => panic!("Expected Composite variant, got {:?}", provider_config),
     }
 }
 
@@ -241,7 +255,12 @@ timeout_secs = 60
 
     let guardrails = config.guardrails.unwrap();
 
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::LlamaGuard {
             enabled_categories, ..
         } => {
@@ -281,7 +300,12 @@ enabled_categories = ["S1", "S7", "S10"]
 
     let guardrails = config.guardrails.unwrap();
 
-    match &guardrails.provider {
+    let provider_config = guardrails
+        .input
+        .as_ref()
+        .or(guardrails.provider.as_ref())
+        .expect("Should have guardrail config");
+    match provider_config {
         GuardrailProviderConfig::LlamaGuard {
             enabled_categories, ..
         } => {
@@ -300,5 +324,147 @@ enabled_categories = ["S1", "S7", "S10"]
             );
         }
         _ => panic!("Expected LlamaGuard variant"),
+    }
+}
+
+/// Test that flattened provider field applies to BOTH input and output guardrails
+#[test]
+fn test_flattened_provider_applies_to_both_input_and_output() {
+    let config_content = r#"
+api_url = "http://localhost:11434/v1/chat/completions"
+model = "llama3"
+system_prompt = "test system"
+user_prompt = "test user"
+
+[guardrails]
+type = "regex"
+max_length_bytes = 1000
+"#;
+
+    let mut temp_file = tempfile::Builder::new().suffix(".toml").tempfile().unwrap();
+    temp_file.write_all(config_content.as_bytes()).unwrap();
+    temp_file.flush().unwrap();
+
+    let config: ConfigFileRequest = load_config_file(temp_file.path().to_str().unwrap()).unwrap();
+
+    assert!(config.guardrails.is_some());
+    let guardrails = config.guardrails.unwrap();
+
+    // The flattened provider field should be present
+    assert!(guardrails.provider.is_some());
+
+    // Neither explicit input nor output should be set
+    assert!(guardrails.input.is_none());
+    assert!(guardrails.output.is_none());
+
+    // Verify the provider is regex with correct config
+    match guardrails.provider.as_ref().unwrap() {
+        GuardrailProviderConfig::Regex(config) => {
+            assert_eq!(config.max_length_bytes, 1000);
+        }
+        _ => panic!("Expected Regex variant"),
+    }
+}
+
+/// Test that explicit output field overrides flattened provider
+#[test]
+fn test_explicit_output_overrides_flattened_provider() {
+    let config_content = r#"
+api_url = "http://localhost:11434/v1/chat/completions"
+model = "llama3"
+system_prompt = "test system"
+user_prompt = "test user"
+
+[guardrails]
+type = "regex"
+max_length_bytes = 1000
+
+[guardrails.output]
+type = "regex"
+max_length_bytes = 2000
+"#;
+
+    let mut temp_file = tempfile::Builder::new().suffix(".toml").tempfile().unwrap();
+    temp_file.write_all(config_content.as_bytes()).unwrap();
+    temp_file.flush().unwrap();
+
+    let config: ConfigFileRequest = load_config_file(temp_file.path().to_str().unwrap()).unwrap();
+
+    assert!(config.guardrails.is_some());
+    let guardrails = config.guardrails.unwrap();
+
+    // Flattened provider should be present
+    assert!(guardrails.provider.is_some());
+
+    // Explicit output should be present
+    assert!(guardrails.output.is_some());
+
+    // Input should be None (uses flattened)
+    assert!(guardrails.input.is_none());
+
+    // Verify flattened provider has 1000
+    match guardrails.provider.as_ref().unwrap() {
+        GuardrailProviderConfig::Regex(config) => {
+            assert_eq!(config.max_length_bytes, 1000);
+        }
+        _ => panic!("Expected Regex variant for flattened provider"),
+    }
+
+    // Verify explicit output has 2000 (override)
+    match guardrails.output.as_ref().unwrap() {
+        GuardrailProviderConfig::Regex(config) => {
+            assert_eq!(config.max_length_bytes, 2000);
+        }
+        _ => panic!("Expected Regex variant for output"),
+    }
+}
+
+/// Test that ConfigBuilder correctly applies flattened provider to output guardrails
+#[test]
+fn test_config_builder_applies_flattened_to_output() {
+    let config_content = r#"
+api_url = "http://localhost:11434/v1/chat/completions"
+model = "llama3"
+system_prompt = "test system"
+user_prompt = "test user"
+
+[guardrails]
+type = "regex"
+max_length_bytes = 1000
+"#;
+
+    let mut temp_file = tempfile::Builder::new().suffix(".toml").tempfile().unwrap();
+    temp_file.write_all(config_content.as_bytes()).unwrap();
+    temp_file.flush().unwrap();
+
+    let file_config: ConfigFileRequest =
+        load_config_file(temp_file.path().to_str().unwrap()).unwrap();
+
+    let builder = ConfigBuilder::new()
+        .api_url("http://localhost:11434/v1/chat/completions")
+        .model("llama3")
+        .user_prompt("test")
+        .system_prompt("system")
+        .merge_file_config(&file_config);
+
+    let eval_config = builder.build().unwrap();
+
+    // Both input and output should have guardrails from flattened provider
+    assert!(eval_config.input_guardrails.is_some());
+    assert!(eval_config.output_guardrails.is_some());
+
+    // Verify both are Regex with 1000 bytes
+    match eval_config.input_guardrails.as_ref().unwrap() {
+        GuardrailProviderConfig::Regex(config) => {
+            assert_eq!(config.max_length_bytes, 1000);
+        }
+        _ => panic!("Expected Regex variant for input"),
+    }
+
+    match eval_config.output_guardrails.as_ref().unwrap() {
+        GuardrailProviderConfig::Regex(config) => {
+            assert_eq!(config.max_length_bytes, 1000);
+        }
+        _ => panic!("Expected Regex variant for output"),
     }
 }
